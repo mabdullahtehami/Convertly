@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Convertly | PDF Tools: Convert, Merge, Split and Compress</title>
+  <meta name="description" content="Convert PDF to JPG, JPG to PDF, DOCX to PDF, PDF to DOCX. Merge, split and compress PDFs. Everything runs in your browser." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F4FD8'/%3E%3Cpath d='M9 12h11l-3-3M23 20H12l3 3' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="8" fill="currentColor" />
+        <path d="M9 12h11l-3-3M23 20H12l3 3" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <span>Convertly</span>
+    </div>
+    <p class="privacy">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6l7-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Your files stay on your device
+    </p>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <h1>Every PDF tool you need, in one place</h1>
+      <p>Convert, merge, split and compress your files. No upload, no sign-up.</p>
+    </section>
+
+    <div class="switch" role="tablist" aria-label="Choose a tool">
+      <button class="switch-btn is-active" role="tab" id="tab-pdf2jpg" aria-selected="true" aria-controls="panel-pdf2jpg" data-target="pdf2jpg">
+        <span class="chip chip-pdf">PDF</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="chip chip-jpg">JPG</span>
+      </button>
+      <button class="switch-btn" role="tab" id="tab-jpg2pdf" aria-selected="false" aria-controls="panel-jpg2pdf" data-target="jpg2pdf" tabindex="-1">
+        <span class="chip chip-jpg">JPG</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="chip chip-pdf">PDF</span>
+      </button>
+      <button class="switch-btn" role="tab" id="tab-docx2pdf" aria-selected="false" aria-controls="panel-docx2pdf" data-target="docx2pdf" tabindex="-1">
+        <span class="chip">DOCX</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="chip chip-pdf">PDF</span>
+      </button>
+      <button class="switch-btn" role="tab" id="tab-pdf2docx" aria-selected="false" aria-controls="panel-pdf2docx" data-target="pdf2docx" tabindex="-1">
+        <span class="chip chip-pdf">PDF</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="chip">DOCX</span>
+      </button>
+      <button class="switch-btn" role="tab" id="tab-merge" aria-selected="false" aria-controls="panel-merge" data-target="merge" tabindex="-1">
+        <span class="chip chip-pdf">Merge PDF</span>
+      </button>
+      <button class="switch-btn" role="tab" id="tab-split" aria-selected="false" aria-controls="panel-split" data-target="split" tabindex="-1">
+        <span class="chip chip-pdf">Split PDF</span>
+      </button>
+      <button class="switch-btn" role="tab" id="tab-compress" aria-selected="false" aria-controls="panel-compress" data-target="compress" tabindex="-1">
+        <span class="chip chip-pdf">Compress PDF</span>
+      </button>
+    </div>
+
+    <!-- PDF to JPG -->
+    <section class="panel" id="panel-pdf2jpg" role="tabpanel" aria-labelledby="tab-pdf2jpg">
+      <label class="dropzone" id="pdfDrop" for="pdfInput">
+        <input type="file" id="pdfInput" accept="application/pdf,.pdf" hidden />
+        <svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true"><path d="M12 6h17l9 9v27H12z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 35V22m-5 5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="dz-title">Drop a PDF here or <u>browse</u></span>
+        <span class="dz-sub">One PDF at a time. Every page becomes a JPG.</span>
+      </label>
+      <div class="file-card" id="pdfFileCard" hidden>
+        <div class="file-badge">PDF</div>
+        <div class="file-info"><strong id="pdfName"></strong><span id="pdfMeta"></span></div>
+        <button class="btn btn-quiet" id="pdfRemove" type="button">Remove</button>
+      </div>
+      <div class="options">
+        <div class="field">
+          <label for="pdfDpi">Image resolution</label>
+          <select id="pdfDpi">
+            <option value="100">Standard (100 DPI)</option>
+            <option value="150" selected>High (150 DPI)</option>
+            <option value="200">Very high (200 DPI)</option>
+            <option value="300">Print quality (300 DPI)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pdfQuality">JPG quality <output id="pdfQualityOut">90%</output></label>
+          <input type="range" id="pdfQuality" min="50" max="100" step="5" value="90" />
+        </div>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="pdfConvert" type="button" disabled>Convert to JPG</button></div>
+      <div class="progress" id="pdfProgress" hidden>
+        <div class="progress-bar"><span id="pdfBar"></span></div>
+        <p id="pdfProgressText">Preparing…</p>
+      </div>
+      <div class="results" id="pdfResults" hidden>
+        <div class="results-head">
+          <h2 id="pdfResultsTitle">Your images</h2>
+          <button class="btn btn-primary btn-sm" id="pdfZip" type="button">Download all as ZIP</button>
+        </div>
+        <div class="grid" id="pdfGrid"></div>
+      </div>
+    </section>
+
+    <!-- JPG to PDF -->
+    <section class="panel" id="panel-jpg2pdf" role="tabpanel" aria-labelledby="tab-jpg2pdf" hidden>
+      <label class="dropzone" id="imgDrop" for="imgInput">
+        <input type="file" id="imgInput" accept="image/*" multiple hidden />
+        <svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true"><rect x="6" y="9" width="36" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="16.5" cy="19" r="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M8 35l10-9 7 6 6-5 11 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        <span class="dz-title">Drop images here or <u>browse</u></span>
+        <span class="dz-sub">JPG, PNG or WebP. Select as many as you need.</span>
+      </label>
+      <div class="results" id="imgListWrap" hidden>
+        <div class="results-head">
+          <h2 id="imgCount">0 images</h2>
+          <button class="btn btn-quiet btn-sm" id="imgClear" type="button">Clear all</button>
+        </div>
+        <p class="hint">Drag to reorder, or use the arrows. Page order follows this list.</p>
+        <ul class="img-list" id="imgList"></ul>
+      </div>
+      <div class="options">
+        <div class="field">
+          <label for="pageSize">Page size</label>
+          <select id="pageSize">
+            <option value="a4" selected>A4</option>
+            <option value="letter">US Letter</option>
+            <option value="fit">Same as image</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pageMargin">Margin</label>
+          <select id="pageMargin">
+            <option value="0">None</option>
+            <option value="10" selected>Small</option>
+            <option value="20">Medium</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="pdfCreate" type="button" disabled>Create PDF</button></div>
+      <div class="progress" id="imgProgress" hidden>
+        <div class="progress-bar"><span id="imgBar"></span></div>
+        <p id="imgProgressText">Building PDF…</p>
+      </div>
+    </section>
+
+    <!-- DOCX to PDF -->
+    <section class="panel" id="panel-docx2pdf" role="tabpanel" aria-labelledby="tab-docx2pdf" hidden>
+      <label class="dropzone" id="docxDrop" for="docxInput">
+        <input type="file" id="docxInput" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden />
+        <svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true"><path d="M12 6h17l9 9v27H12z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M18 23h14M18 29h14M18 35h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span class="dz-title">Drop a DOCX file here or <u>browse</u></span>
+        <span class="dz-sub">Select a Microsoft Word document (.docx).</span>
+      </label>
+      <div class="file-card" id="docxFileCard" hidden>
+        <div class="file-badge">DOCX</div>
+        <div class="file-info"><strong id="docxName"></strong><span id="docxMeta"></span></div>
+        <button class="btn btn-quiet" id="docxRemove" type="button">Remove</button>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="docxConvert" type="button" disabled>Convert to PDF</button></div>
+      <div class="progress" id="docxProgress" hidden>
+        <div class="progress-bar"><span id="docxBar"></span></div>
+        <p id="docxProgressText">Preparing document…</p>
+      </div>
+      <div class="results" id="docxResults" hidden>
+        <div class="results-head">
+          <h2>Your PDF is ready</h2>
+          <button class="btn btn-primary btn-sm" id="docxDownload" type="button">Download PDF</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PDF to DOCX -->
+    <section class="panel" id="panel-pdf2docx" role="tabpanel" aria-labelledby="tab-pdf2docx" hidden>
+      <label class="dropzone" id="wordPdfDrop" for="wordPdfInput">
+        <input type="file" id="wordPdfInput" accept="application/pdf,.pdf" hidden />
+        <svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true"><path d="M12 6h17l9 9v27H12z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M18 23h14M18 29h14M18 35h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <span class="dz-title">Drop a PDF here or <u>browse</u></span>
+        <span class="dz-sub">Text-based PDFs only. Scanned PDFs have no text to extract.</span>
+      </label>
+      <div class="file-card" id="wordPdfFileCard" hidden>
+        <div class="file-badge">PDF</div>
+        <div class="file-info"><strong id="wordPdfName"></strong><span id="wordPdfMeta"></span></div>
+        <button class="btn btn-quiet" id="wordPdfRemove" type="button">Remove</button>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="wordPdfConvert" type="button" disabled>Convert to DOCX</button></div>
+      <div class="progress" id="wordPdfProgress" hidden>
+        <div class="progress-bar"><span id="wordPdfBar"></span></div>
+        <p id="wordPdfProgressText">Preparing document…</p>
+      </div>
+      <div class="results" id="wordPdfResults" hidden>
+        <div class="results-head">
+          <h2>Your Word document is ready</h2>
+          <button class="btn btn-primary btn-sm" id="wordPdfDownload" type="button">Download DOCX</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Merge PDF -->
+    <section class="panel" id="panel-merge" role="tabpanel" aria-labelledby="tab-merge" hidden>
+      <label class="dropzone" id="mergeDrop" for="mergeInput">
+        <input type="file" id="mergeInput" accept="application/pdf,.pdf" multiple hidden />
+        <svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true"><path d="M12 6h17l9 9v27H12z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 35V22m-5 5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="dz-title">Drop PDFs here or <u>browse</u></span>
+        <span class="dz-sub">Select two or more PDF files to combine.</span>
+      </label>
+      <div class="results" id="mergeListWrap" hidden>
+        <div class="results-head">
+          <h2 id="mergeCount">0 files</h2>
+          <button class="btn btn-quiet btn-sm" id="mergeClear" type="button">Clear all</button>
+        </div>
+        <p class="hint">Use the arrows to set the order. The first file comes first in the merged PDF.</p>
+        <ul class="img-list" id="mergeList"></ul>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="mergeBtn" type="button" disabled>Merge PDFs</button></div>
+      <div class="progress" id="mergeProgress" hidden>
+        <div class="progress-bar"><span id="mergeBar"></span></div>
+        <p id="mergeProgressText">Merging…</p>
+      </div>
+    </section>
+
+    <!-- Split PDF -->
+    <section class="panel" id="panel-split" role="tabpanel" aria-labelledby="tab-split" hidden>
+      <label class="dropzone" id="splitDrop" for="splitInput">
+        <input type="file" id="splitInput" accept="application/pdf,.pdf" hidden />
+        <svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true"><path d="M12 6h17l9 9v27H12z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 35V22m-5 5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="dz-title">Drop a PDF here or <u>browse</u></span>
+        <span class="dz-sub">Pick pages to extract, or split every page into its own file.</span>
+      </label>
+      <div class="file-card" id="splitFileCard" hidden>
+        <div class="file-badge">PDF</div>
+        <div class="file-info"><strong id="splitName"></strong><span id="splitMeta"></span></div>
+        <button class="btn btn-quiet" id="splitRemove" type="button">Remove</button>
+      </div>
+      <div class="options">
+        <div class="field">
+          <label for="splitMode">Split mode</label>
+          <select id="splitMode">
+            <option value="extract" selected>Extract selected pages into one PDF</option>
+            <option value="each">Split every page into a separate PDF (ZIP)</option>
+          </select>
+        </div>
+        <div class="field" id="splitRangeField">
+          <label for="splitRange">Pages</label>
+          <input type="text" id="splitRange" placeholder="Example: 1-3, 5, 8-10" autocomplete="off" />
+        </div>
+      </div>
+      <div class="actions"><button class="btn btn-primary" id="splitBtn" type="button" disabled>Split PDF</button></div>
+      <div class="progress" id="splitProgress" hidden>
+        <div class="progress-bar"><span id="splitBar"></span></div>
+        <p id="splitProgressText">Splitting…</p>
+      </div>
+    </section>
+
+    <!-- Compress PDF -->
+    <section class="panel" id="panel-compress" role="tabpanel" aria-labelledby="tab-compress" hidden>
+      <label class="dropzone" id="compressDrop" for="compressInput">
+        <input type="file" id="compressInput" accept="application/pdf,.pdf" hidden />
+        <svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true"><path d="M12 6h17l9 9v27H12z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 35V22m-5 5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="dz-title">Drop a PDF here or <u>browse</u></span>
+        <span class="dz-sub">Make a large PDF smaller for email or upload.</span>
+      </label>
+      <div class="file-card" id="compressFileCard" hidden>
+        <div class="file-badge">PDF</div>
+        <div class="file-info"><strong id="compressName"></strong><span id="compressMeta"></span></div>
+        <button class="btn btn-quiet" id="compressRemove" type="button">Remove</button>
+      </div>
+      <div class="options">
+        <div class="field">
+          <label for="compressLevel">Compression level</label>
+          <select id="compressLevel">
+            <option value="low">Low (best quality)</option>
+            <option value="medium" selected>Medium (recommended)</option>
+            <option value="high">High (smallest file)</option>
+          </select>
+        </div>
+      </div>
+      <p class="hint note">Compression turns each page into an optimized image, so text in the result can no longer be selected.</p>
+      <div class="actions"><button class="btn btn-primary" id="compressBtn" type="button" disabled>Compress PDF</button></div>
+      <div class="progress" id="compressProgress" hidden>
+        <div class="progress-bar"><span id="compressBar"></span></div>
+        <p id="compressProgressText">Compressing…</p>
+      </div>
+      <div class="results" id="compressResults" hidden>
+        <div class="results-head">
+          <h2 id="compressSummary">Your PDF is ready</h2>
+          <button class="btn btn-primary btn-sm" id="compressDownload" type="button">Download PDF</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">  
+    <p>Convertly runs entirely in your browser. Nothing is uploaded to any server.</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Libraries first, then script.js (only once) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
