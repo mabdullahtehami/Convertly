@@ -1,0 +1,35 @@
+/* ==========================================================
+   Convertly - media-tools.css
+   Styles for the audio / video tools (panels, buttons, cards).
+   Link this file in the <head> of index.html.
+   ========================================================== */
+.mt{display:flex;flex-direction:column;gap:14px}
+.mt [hidden]{display:none !important}
+.mt-title{margin:0;font-size:1.25rem}
+.mt-sub{margin:0;opacity:.75}
+.mt-drop{border:2px dashed rgba(128,128,128,.5);border-radius:14px;padding:28px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;transition:.15s}
+.mt-drop p{margin:0}
+.mt-drop.is-over{border-color:var(--primary,#4f46e5);background:rgba(79,70,229,.08)}
+.mt-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:10px;border:1px solid rgba(128,128,128,.45);background:transparent;color:inherit;font:inherit;font-weight:600;cursor:pointer}
+.mt-btn:hover:not(:disabled){border-color:var(--primary,#4f46e5)}
+.mt-btn:disabled{opacity:.5;cursor:not-allowed}
+.mt-primary{background:var(--primary,#4f46e5);border-color:transparent;color:#fff}
+.mt-danger{background:#dc2626;border-color:transparent;color:#fff}
+.mt-input{padding:8px 10px;border-radius:8px;border:1px solid rgba(128,128,128,.45);background:transparent;color:inherit;font:inherit}
+.mt-input option{color:#000}
+.mt-row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+.mt-row label{display:flex;flex-direction:column;gap:6px;font-size:.9rem}
+.mt-check{flex-direction:row !important;align-items:center;gap:8px !important}
+.mt-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:10px;border:1px solid rgba(128,128,128,.35)}
+.mt-card div{display:flex;flex-direction:column;min-width:0}
+.mt-card strong{overflow-wrap:anywhere}
+.mt-card span{font-size:.85rem;opacity:.7}
+.mt-x{border:0;background:transparent;color:inherit;font-size:1.5rem;line-height:1;cursor:pointer;opacity:.7}
+.mt-x:hover{opacity:1}
+.mt-track{height:10px;border-radius:99px;background:rgba(128,128,128,.25);overflow:hidden}
+.mt-bar{height:100%;width:0;background:var(--primary,#4f46e5);transition:width .2s}
+.mt-progress p{margin:6px 0 0;font-size:.9rem;opacity:.8}
+.mt-result{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.mt-media{max-width:100%;border-radius:10px}
+.mt-note{margin:0;font-size:.85rem;opacity:.7}
+.mt-time{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
