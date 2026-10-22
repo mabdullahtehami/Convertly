@@ -3,6 +3,8 @@
    Styles for the tool card grid (iLovePDF style home screen).
    Link this file in the <head> of index.html.
    ========================================================== */
+   .switch { display: none !important; }
+.panel[hidden] { display: none !important; }
 .hg{width:100%}
 .hg [hidden]{display:none !important}
 .hg-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin:0 0 18px}
