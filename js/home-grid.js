@@ -58,8 +58,6 @@
     icon: 'tool',
   });
 
-  
-
   /* ---------- Build the page ---------- */
   const root = document.createElement('section');
   root.className = 'hg';
@@ -110,13 +108,11 @@
 
   root.append(home, bar);
 
-  /* Put the grid where the tab bar was, and hide the old tab bar */
+  /* Put the grid where the tab bar was, and hide the old tab bar.
+     (Panels live outside the tab bar, so it is always hidden whole.) */
   const tabBar = tabs[0].parentNode;
-  const barHoldsPanels = !!tabBar.querySelector('[id^="panel-"]');
-  const anchor = barHoldsPanels ? tabs[0] : tabBar;
-  anchor.parentNode.insertBefore(root, anchor);
-  if (barHoldsPanels) tabs.forEach((t) => (t.style.display = 'none'));
-  else tabBar.style.display = 'none';
+  tabBar.parentNode.insertBefore(root, tabBar);
+  tabBar.style.display = 'none';
 
   /* ---------- Behaviour ---------- */
   function hideAllPanels() {
@@ -169,14 +165,6 @@
   );
   search.addEventListener('input', applyFilter);
   backBtn.addEventListener('click', showHome);
-
-  /* Heading text: only changed when it is plain text */
-  const h1 = $('h1');
-  if (h1 && !h1.children.length) h1.textContent = 'Every file tool you need, in one place';
-  const sub = h1 && h1.nextElementSibling;
-  if (sub && sub.tagName === 'P' && !sub.children.length) {
-    sub.textContent = 'Convert, merge, split and compress PDFs, and work with audio and video. No upload, no sign-up.';
-  }
 
   /* Start on the home grid */
   hideAllPanels();

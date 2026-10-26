@@ -9,9 +9,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
-       <link rel="stylesheet" href="css/media-tools.css">
-   <link rel="stylesheet" href="css/home-grid.css">
-   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/media-tools.css">
+  <link rel="stylesheet" href="css/home-grid.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <header class="topbar">
@@ -36,38 +36,38 @@
 
     <div class="switch" role="tablist" aria-label="Choose a tool">
       <button class="switch-btn is-active" role="tab" id="tab-pdf2jpg" aria-selected="true" aria-controls="panel-pdf2jpg" data-target="pdf2jpg">
-        <span class="chip chip-pdf">PDF</span>
+        <span>PDF</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="chip chip-jpg">JPG</span>
+        <span>JPG</span>
       </button>
       <button class="switch-btn" role="tab" id="tab-jpg2pdf" aria-selected="false" aria-controls="panel-jpg2pdf" data-target="jpg2pdf" tabindex="-1">
-        <span class="chip chip-jpg">JPG</span>
+        <span>JPG</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="chip chip-pdf">PDF</span>
+        <span>PDF</span>
       </button>
       <button class="switch-btn" role="tab" id="tab-docx2pdf" aria-selected="false" aria-controls="panel-docx2pdf" data-target="docx2pdf" tabindex="-1">
-        <span class="chip">DOCX</span>
+        <span>DOCX</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="chip chip-pdf">PDF</span>
+        <span>PDF</span>
       </button>
       <button class="switch-btn" role="tab" id="tab-pdf2docx" aria-selected="false" aria-controls="panel-pdf2docx" data-target="pdf2docx" tabindex="-1">
-        <span class="chip chip-pdf">PDF</span>
+        <span>PDF</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="chip">DOCX</span>
+        <span>DOCX</span>
       </button>
       <button class="switch-btn" role="tab" id="tab-merge" aria-selected="false" aria-controls="panel-merge" data-target="merge" tabindex="-1">
-        <span class="chip chip-pdf">Merge PDF</span>
+        <span>Merge PDF</span>
       </button>
       <button class="switch-btn" role="tab" id="tab-split" aria-selected="false" aria-controls="panel-split" data-target="split" tabindex="-1">
-        <span class="chip chip-pdf">Split PDF</span>
+        <span>Split PDF</span>
       </button>
       <button class="switch-btn" role="tab" id="tab-compress" aria-selected="false" aria-controls="panel-compress" data-target="compress" tabindex="-1">
-        <span class="chip chip-pdf">Compress PDF</span>
+        <span>Compress PDF</span>
       </button>
     </div>
 
     <!-- PDF to JPG -->
-    <section class="panel" id="panel-pdf2jpg" role="tabpanel" aria-labelledby="tab-pdf2jpg" hidden >
+    <section class="panel" id="panel-pdf2jpg" role="tabpanel" aria-labelledby="tab-pdf2jpg" hidden>
       <label class="dropzone" id="pdfDrop" for="pdfInput">
         <input type="file" id="pdfInput" accept="application/pdf,.pdf" hidden />
         <svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true"><path d="M12 6h17l9 9v27H12z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M24 35V22m-5 5l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -301,7 +301,7 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <!-- Libraries first, then script.js (only once) -->
+  <!-- Libraries first, then the app scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -309,21 +309,21 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
   <script src="js/common.js"></script>
-<script src="js/pdf-to-jpg.js"></script>
-<script src="js/jpg-to-pdf.js"></script>
-<script src="js/docx-to-pdf.js"></script>
-<script src="js/pdf-to-docx.js"></script>
-<script src="js/merge-pdf.js"></script>
-<script src="js/split-pdf.js"></script>
-<script src="js/compress-pdf.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
-<script src="js/media-ui.js"></script>
-<script src="js/video-to-mp3.js"></script>
-<script src="js/audio-trimmer.js"></script>
-<script src="js/video-compressor.js"></script>
-<script src="js/video-frame.js"></script>
-<script src="js/audio-recorder.js"></script>
-   <script src="js/home-grid.js"></script>
+  <script src="js/pdf-to-jpg.js"></script>
+  <script src="js/jpg-to-pdf.js"></script>
+  <script src="js/docx-to-pdf.js"></script>
+  <script src="js/pdf-to-docx.js"></script>
+  <script src="js/merge-pdf.js"></script>
+  <script src="js/split-pdf.js"></script>
+  <script src="js/compress-pdf.js"></script>
+  <script src="js/media-ui.js"></script>
+  <script src="js/video-to-mp3.js"></script>
+  <script src="js/audio-trimmer.js"></script>
+  <script src="js/video-compressor.js"></script>
+  <script src="js/video-frame.js"></script>
+  <script src="js/audio-recorder.js"></script>
+  <script src="js/home-grid.js"></script>
 </body>
 </html>

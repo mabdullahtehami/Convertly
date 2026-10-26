@@ -4,9 +4,7 @@
    Link this file in the <head> of index.html.
    ========================================================== */
    .switch { display: none !important; }
-.panel[hidden] { display: none !important; }
 .hg{width:100%}
-.hg [hidden]{display:none !important}
 .hg-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin:0 0 18px}
 .hg-chips{display:flex;flex-wrap:wrap;gap:8px}
 .hg-chip{padding:9px 18px;border-radius:999px;border:1px solid #d6dcea;background:#fff;color:#334155;font:inherit;font-size:.92rem;font-weight:600;cursor:pointer;transition:.15s}

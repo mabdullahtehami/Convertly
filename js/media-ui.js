@@ -7,33 +7,30 @@
 'use strict';
 
 const MT = (function () {
-  
-
   /* ---------- Add a new tab + panel to the page ---------- */
   function addTool(id, label, html) {
     const first = tabs[0];
 
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = first ? first.className.replace(/\bis-active\b/g, '').trim() : 'switch-btn';
+    btn.className = first.className.replace(/\bis-active\b/g, '').trim();
     btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-selected', 'false');
     btn.tabIndex = -1;
     btn.dataset.target = id;
     btn.textContent = label;
-    if (first && first.parentNode) first.parentNode.appendChild(btn);
-    else document.body.appendChild(btn);
+    first.parentNode.appendChild(btn);
 
+    /* Clone the type and look of the last existing panel */
     const panels = $$('[id^="panel-"]');
     const last = panels[panels.length - 1];
-    const panel = document.createElement(last ? last.tagName.toLowerCase() : 'section');
-    if (last) panel.className = last.className;
+    const panel = document.createElement(last.tagName.toLowerCase());
+    panel.className = last.className;
     panel.id = 'panel-' + id;
     panel.setAttribute('role', 'tabpanel');
     panel.hidden = true;
     panel.innerHTML = '<div class="mt">' + html + '</div>';
-    if (last) last.after(panel);
-    else document.body.appendChild(panel);
+    last.after(panel);
 
     /* Register with the existing tab system from common.js */
     tabs.push(btn);

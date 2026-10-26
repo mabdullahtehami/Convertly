@@ -8,7 +8,6 @@
   --cobalt: #1f4fd8;
   --cobalt-dark: #173ba6;
   --cobalt-soft: #e4ebfd;
-  --marigold-soft: #fdf1cf;
   --pine: #17803d;
   --danger: #c0322b;
   --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
@@ -56,35 +55,6 @@ button, select, input { font: inherit; color: inherit; }
 .hero { max-width: 680px; margin-bottom: 32px; }
 .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; font-weight: 800; }
 .hero p { margin: 14px 0 0; color: var(--muted); font-size: 1.08rem; max-width: 52ch; }
-
-/* Tabs */
-.switch {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px; padding: 8px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  margin-bottom: 20px;
-}
-.switch-btn {
-  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px;
-  padding: 14px 8px; border: 0; border-radius: 14px;
-  background: transparent; cursor: pointer; color: var(--muted);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-}
-.switch-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-.switch-btn:hover { background: var(--mist); }
-.switch-btn.is-active { background: var(--ink); color: #fff; box-shadow: 0 6px 18px rgba(15, 28, 46, 0.22); }
-
-.chip {
-  font-family: var(--font-display); font-weight: 800;
-  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
-  padding: 4px 10px; border-radius: 10px; letter-spacing: -0.01em;
-  background: #e9edf2; color: #33445a;
-}
-.chip-pdf { background: var(--cobalt-soft); color: var(--cobalt-dark); }
-.chip-jpg { background: var(--marigold-soft); color: #7a5300; }
 
 /* Panel */
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px; }
@@ -221,9 +191,6 @@ input[type="range"] { width: 100%; height: 44px; accent-color: var(--cobalt); cu
 .foot p { margin: 0; }
 
 /* Responsive */
-@media (max-width: 900px) {
-  .switch { grid-template-columns: repeat(2, 1fr); }
-}
 @media (max-width: 640px) {
   .topbar { flex-direction: column; align-items: flex-start; gap: 6px; padding-top: 18px; }
   .shell { padding: 28px 16px 40px; }
