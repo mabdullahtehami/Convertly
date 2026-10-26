@@ -104,7 +104,11 @@ export default function MergePdf({ id, hidden }) {
         accept="application/pdf,.pdf"
         multiple
         inputRef={inputRef}
-        onFiles={addFiles}
+        onFiles={(fileList) => {
+          const files = [...fileList];
+          if (inputRef.current) inputRef.current.value = '';
+          addFiles(files);
+        }}
         icon={DzFileArrow}
         title={
           <>

@@ -24,13 +24,10 @@ export default function VideoFrame({ id, hidden }) {
   const [showOptions, setShowOptions] = useState(false);
   const [resultsShow, setResultsShow] = useState(false);
 
-  useEffect(
-    () => () => {
-      if (url) URL.revokeObjectURL(url);
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    },
-    [url, previewUrl]
-  );
+  /* Same as js/video-frame.js: revoke each URL only when IT changes,
+     so capturing a frame never kills the video source URL. */
+  useEffect(() => () => { if (url) URL.revokeObjectURL(url); }, [url]);
+  useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
 
   function clearUrls() {
     if (url) URL.revokeObjectURL(url);

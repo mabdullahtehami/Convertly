@@ -37,8 +37,12 @@ export default function PdfToJpg({ id, hidden }) {
   const [zipDisabled, setZipDisabled] = useState(false);
 
   function clearResults() {
-    results.forEach((r) => URL.revokeObjectURL(r.url));
-    setResults([]);
+    /* Functional update: always revokes the CURRENT results,
+       even when called from inside a running conversion. */
+    setResults((prev) => {
+      prev.forEach((r) => URL.revokeObjectURL(r.url));
+      return [];
+    });
     setResultsShow(false);
     setProgress((p) => ({ ...p, show: false }));
   }

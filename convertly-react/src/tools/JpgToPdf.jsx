@@ -87,10 +87,9 @@ export default function JpgToPdf({ id, hidden }) {
   }
 
   function removeItem(index) {
-    setItems((prev) => {
-      URL.revokeObjectURL(prev[index].thumbUrl);
-      return prev.filter((_, i) => i !== index);
-    });
+    const removed = items[index];
+    if (removed) URL.revokeObjectURL(removed.thumbUrl);
+    setItems((prev) => prev.filter((_, i) => i !== index));
   }
 
   function clearImages() {
@@ -177,7 +176,11 @@ export default function JpgToPdf({ id, hidden }) {
         accept="image/*"
         multiple
         inputRef={inputRef}
-        onFiles={addImages}
+        onFiles={(fileList) => {
+          const files = [...fileList];
+          if (inputRef.current) inputRef.current.value = '';
+          addImages(files);
+        }}
         icon={DzImage}
         title={
           <>
