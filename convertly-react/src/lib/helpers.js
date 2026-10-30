@@ -33,6 +33,31 @@ export function canvasToBlob(canvas, type, quality) {
 export const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
 export const isPdfFile = (f) => f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
 
+/* Load an image file as an <img>.
+   The object URL is revoked right away - the pixels are already decoded. */
+export function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Could not read image'));
+    };
+    img.src = url;
+  });
+}
+
+/* PNG and WebP keep their transparency, everything else saves best as JPG */
+export function imageOut(type) {
+  if (type === 'image/png') return { mime: 'image/png', ext: 'png' };
+  if (type === 'image/webp') return { mime: 'image/webp', ext: 'webp' };
+  return { mime: 'image/jpeg', ext: 'jpg' };
+}
+
 /* "1-3, 5, 8-10" -> zero-based page indexes, or null if invalid */
 export function parseRanges(text, total) {
   const out = [];

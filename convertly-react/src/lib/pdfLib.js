@@ -2,9 +2,9 @@
    Convertly React - pdf-lib helpers
    Port of the PDFLib bits in js/common.js
    ========================================================== */
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
 
-export { PDFDocument };
+export { PDFDocument, StandardFonts, rgb, degrees };
 
 export function libsReady(toast) {
   if (!PDFDocument) {

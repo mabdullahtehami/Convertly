@@ -18,6 +18,18 @@ import AudioTrimmer from './tools/AudioTrimmer.jsx';
 import VideoCompressor from './tools/VideoCompressor.jsx';
 import VideoFrame from './tools/VideoFrame.jsx';
 import AudioRecorder from './tools/AudioRecorder.jsx';
+import RotatePdf from './tools/RotatePdf.jsx';
+import WatermarkPdf from './tools/WatermarkPdf.jsx';
+import PageNumbersPdf from './tools/PageNumbersPdf.jsx';
+import PdfMetadata from './tools/PdfMetadata.jsx';
+import PdfToText from './tools/PdfToText.jsx';
+import ImageCompressor from './tools/ImageCompressor.jsx';
+import ImageConverter from './tools/ImageConverter.jsx';
+import ImageResizer from './tools/ImageResizer.jsx';
+import RotateImage from './tools/RotateImage.jsx';
+import AudioConverter from './tools/AudioConverter.jsx';
+import ScreenRecorder from './tools/ScreenRecorder.jsx';
+import QrCode from './tools/QrCode.jsx';
 
 /* Same order as the panels in index.html */
 const PANELS = [
@@ -33,6 +45,18 @@ const PANELS = [
   { id: 'vcomp', label: 'Video Compressor', Component: VideoCompressor },
   { id: 'vframe', label: 'Video to Image', Component: VideoFrame },
   { id: 'rec', label: 'Audio Recorder', Component: AudioRecorder },
+  { id: 'rotate', label: 'Rotate PDF', Component: RotatePdf },
+  { id: 'watermark', label: 'Watermark PDF', Component: WatermarkPdf },
+  { id: 'pagenums', label: 'Page Numbers', Component: PageNumbersPdf },
+  { id: 'metadata', label: 'PDF Metadata', Component: PdfMetadata },
+  { id: 'pdftotxt', label: 'PDF to Text', Component: PdfToText },
+  { id: 'imgcomp', label: 'Image Compressor', Component: ImageCompressor },
+  { id: 'imgconv', label: 'Image Converter', Component: ImageConverter },
+  { id: 'imgsize', label: 'Image Resizer', Component: ImageResizer },
+  { id: 'imgrot', label: 'Rotate Image', Component: RotateImage },
+  { id: 'audioconv', label: 'Audio Converter', Component: AudioConverter },
+  { id: 'screen', label: 'Screen Recorder', Component: ScreenRecorder },
+  { id: 'qr', label: 'QR Code Generator', Component: QrCode },
 ];
 
 /* The original tab bar: hidden by css/home-grid.css (.switch{display:none!important}),
@@ -80,7 +104,7 @@ export default function App() {
       <main className="shell">
         <section className="hero">
           <h1>Every file tool you need, in one place</h1>
-          <p>Convert, merge, split and compress PDFs, and work with audio and video. No upload, no sign-up.</p>
+          <p>Convert, merge, split and compress PDFs, and work with images, audio and video. No upload, no sign-up.</p>
         </section>
 
         <div className="switch" role="tablist" aria-label="Choose a tool" hidden>
