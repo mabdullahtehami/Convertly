@@ -7,7 +7,7 @@ import Dropzone from '../components/Dropzone.jsx';
 import FileCard from '../components/FileCard.jsx';
 import { DzFileArrow } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { formatBytes, baseName, downloadBlob, isPdfFile } from '../lib/helpers.js';
+import { baseName, downloadBlob, isPdfFile } from '../lib/helpers.js';
 import { PDFDocument, StandardFonts, rgb, libsReady } from '../lib/pdfLib.js';
 
 export default function PageNumbersPdf({ id, hidden }) {
@@ -19,7 +19,8 @@ export default function PageNumbersPdf({ id, hidden }) {
   const [start, setStart] = useState('1');
   const [busy, setBusy] = useState(false);
 
-  function choose(chosen) {
+  function choose(fileList) {
+    const chosen = fileList && fileList[0];
     if (!chosen) return;
     if (!isPdfFile(chosen)) {
       toast('Please select a PDF file.', 'error');
@@ -69,11 +70,7 @@ export default function PageNumbersPdf({ id, hidden }) {
         id="pagenums"
         accept="application/pdf,.pdf"
         inputRef={inputRef}
-        onFiles={(fileList) => {
-          const chosen = fileList && fileList[0];
-          if (inputRef.current) inputRef.current.value = '';
-          choose(chosen);
-        }}
+        onFiles={choose}
         icon={DzFileArrow}
         title={
           <>

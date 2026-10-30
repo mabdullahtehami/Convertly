@@ -7,7 +7,7 @@ import Dropzone from '../components/Dropzone.jsx';
 import FileCard from '../components/FileCard.jsx';
 import { DzFileArrow } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { formatBytes, baseName, downloadBlob, isPdfFile } from '../lib/helpers.js';
+import { baseName, downloadBlob, isPdfFile } from '../lib/helpers.js';
 import { libsReady, openPdfLib } from '../lib/pdfLib.js';
 
 const EMPTY = { title: '', author: '', subject: '', keywords: '' };
@@ -21,7 +21,8 @@ export default function PdfMetadata({ id, hidden }) {
   const [fields, setFields] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
 
-  async function choose(chosen) {
+  async function choose(fileList) {
+    const chosen = fileList && fileList[0];
     if (!chosen) return;
     if (!isPdfFile(chosen)) {
       toast('Please select a PDF file.', 'error');
@@ -82,11 +83,7 @@ export default function PdfMetadata({ id, hidden }) {
         id="metadata"
         accept="application/pdf,.pdf"
         inputRef={inputRef}
-        onFiles={(fileList) => {
-          const chosen = fileList && fileList[0];
-          if (inputRef.current) inputRef.current.value = '';
-          choose(chosen);
-        }}
+        onFiles={choose}
         icon={DzFileArrow}
         title={
           <>

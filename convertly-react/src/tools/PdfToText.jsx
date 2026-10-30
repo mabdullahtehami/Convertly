@@ -8,7 +8,7 @@ import FileCard from '../components/FileCard.jsx';
 import ProgressBar from '../components/ProgressBar.jsx';
 import { DzFileLines } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { formatBytes, baseName, downloadBlob, nextFrame, isPdfFile } from '../lib/helpers.js';
+import { baseName, downloadBlob, nextFrame, isPdfFile } from '../lib/helpers.js';
 import { pdfjsLib } from '../lib/pdfjs.js';
 
 export default function PdfToText({ id, hidden }) {
@@ -19,7 +19,8 @@ export default function PdfToText({ id, hidden }) {
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState({ show: false, percent: 0, text: 'Extracting…' });
 
-  function choose(chosen) {
+  function choose(fileList) {
+    const chosen = fileList && fileList[0];
     if (!chosen) return;
     if (!isPdfFile(chosen)) {
       toast('Please select a PDF file.', 'error');
@@ -109,11 +110,7 @@ export default function PdfToText({ id, hidden }) {
         id="pdftotxt"
         accept="application/pdf,.pdf"
         inputRef={inputRef}
-        onFiles={(fileList) => {
-          const chosen = fileList && fileList[0];
-          if (inputRef.current) inputRef.current.value = '';
-          choose(chosen);
-        }}
+        onFiles={choose}
         icon={DzFileLines}
         title={
           <>

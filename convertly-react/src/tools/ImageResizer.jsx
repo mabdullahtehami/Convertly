@@ -22,7 +22,8 @@ export default function ImageResizer({ id, hidden }) {
   const [lock, setLock] = useState(true);
   const [busy, setBusy] = useState(false);
 
-  async function choose(chosen) {
+  async function choose(fileList) {
+    const chosen = fileList && fileList[0];
     if (!chosen) return;
     if (!chosen.type.startsWith('image/')) {
       toast('Please choose an image file.', 'error');
@@ -103,11 +104,7 @@ export default function ImageResizer({ id, hidden }) {
         id="imgsize"
         accept="image/*"
         inputRef={inputRef}
-        onFiles={(fileList) => {
-          const chosen = fileList && fileList[0];
-          if (inputRef.current) inputRef.current.value = '';
-          choose(chosen);
-        }}
+        onFiles={choose}
         icon={DzImage}
         title={
           <>

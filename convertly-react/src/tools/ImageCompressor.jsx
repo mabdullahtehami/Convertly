@@ -20,7 +20,8 @@ export default function ImageCompressor({ id, hidden }) {
   const [resultsShow, setResultsShow] = useState(false);
   const [summary, setSummary] = useState('Your image is ready');
 
-  function choose(chosen) {
+  function choose(fileList) {
+    const chosen = fileList && fileList[0];
     if (!chosen) return;
     if (!chosen.type.startsWith('image/')) {
       toast('Please choose an image file.', 'error');
@@ -81,11 +82,7 @@ export default function ImageCompressor({ id, hidden }) {
         id="imgcomp"
         accept="image/*"
         inputRef={inputRef}
-        onFiles={(fileList) => {
-          const chosen = fileList && fileList[0];
-          if (inputRef.current) inputRef.current.value = '';
-          choose(chosen);
-        }}
+        onFiles={choose}
         icon={DzImage}
         title={
           <>

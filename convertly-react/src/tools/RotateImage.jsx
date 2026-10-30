@@ -7,7 +7,7 @@ import Dropzone from '../components/Dropzone.jsx';
 import FileCard from '../components/FileCard.jsx';
 import { DzImage } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { formatBytes, baseName, downloadBlob, canvasToBlob, loadImage, imageOut } from '../lib/helpers.js';
+import { baseName, downloadBlob, canvasToBlob, loadImage, imageOut } from '../lib/helpers.js';
 
 export default function RotateImage({ id, hidden }) {
   const toast = useToast();
@@ -17,7 +17,8 @@ export default function RotateImage({ id, hidden }) {
   const [dir, setDir] = useState('90');
   const [busy, setBusy] = useState(false);
 
-  function choose(chosen) {
+  function choose(fileList) {
+    const chosen = fileList && fileList[0];
     if (!chosen) return;
     if (!chosen.type.startsWith('image/')) {
       toast('Please choose an image file.', 'error');
@@ -73,11 +74,7 @@ export default function RotateImage({ id, hidden }) {
         id="imgrot"
         accept="image/*"
         inputRef={inputRef}
-        onFiles={(fileList) => {
-          const chosen = fileList && fileList[0];
-          if (inputRef.current) inputRef.current.value = '';
-          choose(chosen);
-        }}
+        onFiles={choose}
         icon={DzImage}
         title={
           <>

@@ -8,7 +8,7 @@ import FileCard from '../components/FileCard.jsx';
 import ProgressBar from '../components/ProgressBar.jsx';
 import { DzFileLines } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { formatBytes, baseName, downloadBlob } from '../lib/helpers.js';
+import { baseName, downloadBlob } from '../lib/helpers.js';
 import mammoth from '../lib/mammoth.js';
 import html2pdf from '../lib/html2pdf.js';
 

@@ -8,7 +8,7 @@ import FileCard from '../components/FileCard.jsx';
 import ProgressBar from '../components/ProgressBar.jsx';
 import { DzFileLines } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { formatBytes, baseName, downloadBlob, nextFrame, isPdfFile } from '../lib/helpers.js';
+import { baseName, downloadBlob, nextFrame, isPdfFile } from '../lib/helpers.js';
 import { pdfjsLib } from '../lib/pdfjs.js';
 import docx from '../lib/docx.js';
 

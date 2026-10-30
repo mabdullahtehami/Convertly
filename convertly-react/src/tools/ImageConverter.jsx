@@ -7,7 +7,7 @@ import Dropzone from '../components/Dropzone.jsx';
 import FileCard from '../components/FileCard.jsx';
 import { DzImage } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { formatBytes, baseName, downloadBlob, canvasToBlob, loadImage, imageOut } from '../lib/helpers.js';
+import { baseName, downloadBlob, canvasToBlob, loadImage, imageOut } from '../lib/helpers.js';
 
 const TYPES = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
 
@@ -19,7 +19,8 @@ export default function ImageConverter({ id, hidden }) {
   const [format, setFormat] = useState('jpg');
   const [busy, setBusy] = useState(false);
 
-  function choose(chosen) {
+  function choose(fileList) {
+    const chosen = fileList && fileList[0];
     if (!chosen) return;
     if (!chosen.type.startsWith('image/')) {
       toast('Please choose an image file.', 'error');
@@ -68,11 +69,7 @@ export default function ImageConverter({ id, hidden }) {
         id="imgconv"
         accept="image/*"
         inputRef={inputRef}
-        onFiles={(fileList) => {
-          const chosen = fileList && fileList[0];
-          if (inputRef.current) inputRef.current.value = '';
-          choose(chosen);
-        }}
+        onFiles={choose}
         icon={DzImage}
         title={
           <>
