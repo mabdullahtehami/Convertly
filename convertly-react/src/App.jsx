@@ -30,6 +30,7 @@ import RotateImage from './tools/RotateImage.jsx';
 import AudioConverter from './tools/AudioConverter.jsx';
 import ScreenRecorder from './tools/ScreenRecorder.jsx';
 import QrCode from './tools/QrCode.jsx';
+import Ocr from './tools/Ocr.jsx';
 
 /* Same order as the panels in index.html */
 const PANELS = [
@@ -57,6 +58,7 @@ const PANELS = [
   { id: 'audioconv', Component: AudioConverter },
   { id: 'screen', Component: ScreenRecorder },
   { id: 'qr', Component: QrCode },
+  { id: 'ocr', Component: Ocr },
 ];
 
 /* The original tab bar: hidden by css/home-grid.css (.switch{display:none!important}),

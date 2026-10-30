@@ -32,6 +32,7 @@
     expand: '<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',
     screen: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><circle cx="12" cy="10.5" r="2.5"/>',
     qr: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3"/><rect x="19" y="14" width="2" height="2"/><rect x="14" y="19" width="2" height="2"/><rect x="18" y="18" width="3" height="3"/>',
+    scan: '<path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 10h8M8 14h5"/>',
     tool: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>',
   };
 
@@ -61,6 +62,7 @@
     { title: 'Audio Converter', desc: 'Convert audio files to MP3 or WAV.', cat: 'audio', color: '#7c3aed', icon: 'swap', badge: true },
     { title: 'Screen Recorder', desc: 'Record your screen and save it as a video.', cat: 'video', color: '#db2777', icon: 'screen', badge: true },
     { title: 'QR Code Generator', desc: 'Create a QR code from any text or link.', cat: 'tools', color: '#64748b', icon: 'qr', badge: true },
+    { title: 'Image & PDF OCR', desc: 'Read the text from scans and photos.', cat: 'tools', color: '#64748b', icon: 'scan', badge: true },
   ];
 
   const CATS = [

@@ -114,6 +114,12 @@ const ICONS = {
       <rect x="18" y="18" width="3" height="3" />
     </>
   ),
+  scan: (
+    <>
+      <path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" />
+      <path d="M8 10h8M8 14h5" />
+    </>
+  ),
   tool: <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z" />,
 };
 
@@ -297,6 +303,14 @@ export const TOOLS = [
     cat: 'tools',
     color: '#64748b',
     icon: 'qr',
+    badge: true,
+  },
+  {
+    title: 'Image & PDF OCR',
+    desc: 'Read the text from scans and photos.',
+    cat: 'tools',
+    color: '#64748b',
+    icon: 'scan',
     badge: true,
   },
 ];
