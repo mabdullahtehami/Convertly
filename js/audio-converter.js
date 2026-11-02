@@ -48,7 +48,7 @@
     results: $('#audioconvResults'),
     download: $('#audioconvDownload'),
   };
-  const state = { file: null, blob: null, busy: false };
+  const state = { file: null, blob: null, busy: false, ext: '' };
 
   const isAudio = (f) => f.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(f.name);
 
@@ -75,6 +75,7 @@
 
   function reset() {
     state.file = state.blob = null;
+    state.ext = '';
     el.input.value = '';
     el.card.hidden = true;
     el.results.hidden = true;
@@ -110,6 +111,7 @@
         setProgress('audioconv', 100, 'MP3 ready (' + formatBytes(state.blob.size) + ').');
       }
 
+      state.ext = fmt;
       el.results.hidden = false;
       toast(fmt.toUpperCase() + ' created.', 'success');
     } catch (err) {
@@ -123,11 +125,11 @@
     }
   }
 
-  el.input.addEventListener('change', (e) => choose(e.target.files));
+  onFileInput(el.input, choose);
   el.remove.addEventListener('click', reset);
   el.btn.addEventListener('click', convert);
   el.download.addEventListener('click', () => {
-    if (state.blob && state.file) downloadBlob(state.blob, baseName(state.file.name) + '.' + el.format.value);
+    if (state.blob && state.file) downloadBlob(state.blob, baseName(state.file.name) + '.' + state.ext);
   });
   setupDropzone(el.drop, choose);
 })();

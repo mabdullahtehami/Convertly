@@ -10,6 +10,7 @@ import { DzFileLines } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
 import { baseName, downloadBlob, isPdfFile } from '../lib/helpers.js';
 import { createWorker } from 'tesseract.js';
+import workerUrl from 'tesseract.js/dist/worker.min.js?url';
 import { pdfjsLib } from '../lib/pdfjs.js';
 
 export default function Ocr({ id, hidden }) {
@@ -38,35 +39,14 @@ export default function Ocr({ id, hidden }) {
   function reset() {
     setFile(null);
     if (inputRef.current) inputRef.current.value = '';
+    setText('');
+    setSummary('Text found');
     setResultsShow(false);
     setProgress((p) => ({ ...p, show: false }));
   }
 
-  /* Every PDF page becomes a canvas, at 2x so small print stays readable */
-  async function renderPages(pdfFile) {
-    const data = new Uint8Array(await pdfFile.arrayBuffer());
-    const pdf = await pdfjsLib.getDocument({ data }).promise;
-    const canvases = [];
-    for (let n = 1; n <= pdf.numPages; n++) {
-      const page = await pdf.getPage(n);
-      const viewport = page.getViewport({ scale: 2 });
-      const canvas = document.createElement('canvas');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-      canvases.push(canvas);
-      page.cleanup();
-    }
-    pdf.destroy().catch(() => {});
-    return canvases;
-  }
-
   async function convert() {
     if (!file || busy) return;
-    if (isPdfFile(file) && !pdfjsLib) {
-      toast('PDF library failed to load. Check your internet and refresh.', 'error');
-      return;
-    }
 
     setBusy(true);
     setResultsShow(false);
@@ -74,12 +54,10 @@ export default function Ocr({ id, hidden }) {
 
     let worker = null;
     let done = 0;
+    let total = 1;
     try {
-      const images = isPdfFile(file) ? await renderPages(file) : [file];
-      const total = images.length;
-
       worker = await createWorker('eng', 1, {
-        workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js',
+        workerPath: workerUrl,
         logger: (m) => {
           if (m.status === 'recognizing text') {
             setProgress({
@@ -93,11 +71,34 @@ export default function Ocr({ id, hidden }) {
         },
       });
 
+      /* PDF pages are rendered and recognised ONE at a time (2x scale),
+         so a big scan never holds every page canvas in memory. */
       const found = [];
-      for (const image of images) {
-        const { data } = await worker.recognize(image);
+      if (isPdfFile(file)) {
+        const data = new Uint8Array(await file.arrayBuffer());
+        const pdf = await pdfjsLib.getDocument({ data }).promise;
+        try {
+          total = pdf.numPages;
+          for (let n = 1; n <= pdf.numPages; n++) {
+            const page = await pdf.getPage(n);
+            const viewport = page.getViewport({ scale: 2 });
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+            page.cleanup();
+            const { data: ocr } = await worker.recognize(canvas);
+            found.push(ocr.text.trim());
+            done++;
+            canvas.width = canvas.height = 0; // give the memory back
+          }
+        } finally {
+          pdf.destroy().catch(() => {});
+        }
+      } else {
+        const { data } = await worker.recognize(file);
         found.push(data.text.trim());
-        done++;
+        done = 1;
       }
 
       const result = found.join('\n\n').trim();
@@ -127,7 +128,7 @@ export default function Ocr({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="ocr"
         accept="image/*,application/pdf,.pdf"

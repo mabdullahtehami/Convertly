@@ -63,6 +63,8 @@ export default function VideoCompressor({ id, hidden }) {
     const isMuted = mute;
     let actx = null;
     let raf = 0;
+    let stream = null;
+    let recorder = null;
 
     try {
       video.src = url;
@@ -85,7 +87,7 @@ export default function VideoCompressor({ id, hidden }) {
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext('2d');
-      const stream = canvas.captureStream(30);
+      stream = canvas.captureStream(30);
 
       /* Sound goes into the recording but not to the speakers */
       if (!isMuted) {
@@ -101,7 +103,7 @@ export default function VideoCompressor({ id, hidden }) {
       const mime = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find((m) =>
         MediaRecorder.isTypeSupported(m)
       );
-      const recorder = new MediaRecorder(stream, {
+      recorder = new MediaRecorder(stream, {
         mimeType: mime,
         videoBitsPerSecond: Number(quality),
         audioBitsPerSecond: 96000,
@@ -148,10 +150,18 @@ export default function VideoCompressor({ id, hidden }) {
       toast('Video compressed.', 'success');
     } catch (err) {
       console.error('Video compress error:', err);
+      if (recorder && recorder.state !== 'inactive') {
+        try {
+          recorder.stop();
+        } catch (stopErr) {
+          console.error(stopErr);
+        }
+      }
       setProgress((p) => ({ ...p, show: false }));
       toast('Could not compress this video. Try another file.', 'error');
     } finally {
       cancelAnimationFrame(raf);
+      if (stream) stream.getTracks().forEach((t) => t.stop());
       video.pause();
       video.removeAttribute('src');
       video.load();
@@ -162,7 +172,7 @@ export default function VideoCompressor({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <div className="mt">
         <h2 className="mt-title">Video Compressor</h2>
         <p className="mt-sub">Make a video smaller. The result is saved as a WebM file.</p>

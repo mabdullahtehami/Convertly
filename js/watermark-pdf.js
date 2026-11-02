@@ -105,7 +105,7 @@
     }
   }
 
-  el.input.addEventListener('change', (e) => choose(e.target.files));
+  onFileInput(el.input, choose);
   el.remove.addEventListener('click', reset);
   el.btn.addEventListener('click', addWatermark);
   setupDropzone(el.drop, choose);

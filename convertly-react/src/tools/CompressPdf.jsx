@@ -53,10 +53,6 @@ export default function CompressPdf({ id, hidden }) {
 
   async function compress() {
     if (!file || busy || !libsReady(toast)) return;
-    if (!pdfjsLib) {
-      toast('PDF library failed to load. Check your internet connection and refresh.', 'error');
-      return;
-    }
 
     setBusy(true);
     setResultsShow(false);
@@ -131,7 +127,7 @@ export default function CompressPdf({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" aria-labelledby={'tab-' + id} hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="compress"
         accept="application/pdf,.pdf"

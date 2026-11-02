@@ -98,17 +98,13 @@ export default function MergePdf({ id, hidden }) {
   const count = items.length;
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" aria-labelledby={'tab-' + id} hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="merge"
         accept="application/pdf,.pdf"
         multiple
         inputRef={inputRef}
-        onFiles={(fileList) => {
-          const files = [...fileList];
-          if (inputRef.current) inputRef.current.value = '';
-          addFiles(files);
-        }}
+        onFiles={addFiles}
         icon={DzFileArrow}
         title={
           <>

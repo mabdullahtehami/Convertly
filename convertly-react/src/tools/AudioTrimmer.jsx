@@ -128,7 +128,7 @@ export default function AudioTrimmer({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <div className="mt">
         <h2 className="mt-title">Audio Trimmer</h2>
         <p className="mt-sub">

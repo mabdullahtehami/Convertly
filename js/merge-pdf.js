@@ -127,7 +127,7 @@
     }
   }
 
-  mg.input.addEventListener('change', (e) => addFiles(e.target.files).then(() => (mg.input.value = '')));
+  onFileInput(mg.input, addFiles);
   mg.clear.addEventListener('click', () => {
     mg.items = [];
     mg.progress.hidden = true;

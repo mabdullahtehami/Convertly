@@ -121,7 +121,7 @@
 
   el.w.addEventListener('input', syncWidth);
   el.h.addEventListener('input', syncHeight);
-  el.input.addEventListener('change', (e) => choose(e.target.files));
+  onFileInput(el.input, choose);
   el.remove.addEventListener('click', reset);
   el.btn.addEventListener('click', resize);
   setupDropzone(el.drop, choose);

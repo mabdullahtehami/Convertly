@@ -37,12 +37,10 @@ export default function PdfToJpg({ id, hidden }) {
   const [zipDisabled, setZipDisabled] = useState(false);
 
   function clearResults() {
-    /* Functional update: always revokes the CURRENT results,
-       even when called from inside a running conversion. */
-    setResults((prev) => {
-      prev.forEach((r) => URL.revokeObjectURL(r.url));
-      return [];
-    });
+    /* Revoke OUTSIDE the setState updater: updaters may run
+       during render (and twice under StrictMode). */
+    results.forEach((r) => URL.revokeObjectURL(r.url));
+    setResults([]);
     setResultsShow(false);
     setProgress((p) => ({ ...p, show: false }));
   }
@@ -68,10 +66,6 @@ export default function PdfToJpg({ id, hidden }) {
 
   async function convertPdfToJpg() {
     if (!file || busy) return;
-    if (!pdfjsLib) {
-      toast('PDF library failed to load. Check your internet connection and refresh.', 'error');
-      return;
-    }
 
     setBusy(true);
     clearResults();
@@ -155,10 +149,6 @@ export default function PdfToJpg({ id, hidden }) {
 
   async function downloadPdfZip() {
     if (!results.length) return;
-    if (!JSZip) {
-      toast('ZIP library failed to load. Download pages one by one instead.', 'error');
-      return;
-    }
     setZipDisabled(true);
     setZipText('Preparing ZIP…');
     try {
@@ -176,7 +166,7 @@ export default function PdfToJpg({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" aria-labelledby={'tab-' + id} hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="pdf"
         accept="application/pdf,.pdf"

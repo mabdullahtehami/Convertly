@@ -6,11 +6,9 @@ import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
 
 export { PDFDocument, StandardFonts, rgb, degrees };
 
-export function libsReady(toast) {
-  if (!PDFDocument) {
-    toast('PDF library failed to load. Check your internet and refresh.', 'error');
-    return false;
-  }
+/* PDFDocument is statically imported, so this can never fail.
+   Kept because the tool panels call it before opening a PDF. */
+export function libsReady() {
   return true;
 }
 

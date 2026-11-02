@@ -48,7 +48,7 @@ export default function PdfToDocx({ id, hidden }) {
 
   async function convert() {
     if (!file || busy) return;
-    if (!pdfjsLib || !docx || !docx.Document || !docx.Packer) {
+    if (!docx.Document || !docx.Packer) {
       toast('A required library failed to load. Check your internet and refresh.', 'error');
       return;
     }
@@ -124,7 +124,7 @@ export default function PdfToDocx({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" aria-labelledby={'tab-' + id} hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="wordPdf"
         accept="application/pdf,.pdf"

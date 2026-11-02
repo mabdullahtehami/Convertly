@@ -1,6 +1,6 @@
 /* ==========================================================
    Convertly - common.js
-   Shared helpers + tabs. MUST be loaded first.
+   Shared helpers + panels. MUST be loaded first.
    ========================================================== */
 'use strict';
 
@@ -57,6 +57,23 @@ function canvasToBlob(canvas, type, quality) {
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
 const isPdfFile = (f) => f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
 
+/* Drop scripts, event handlers and JS URLs from generated HTML
+   before it is written into the live DOM. */
+function sanitizeHtml(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  doc.querySelectorAll('script,iframe,object,embed,link,meta,style,form').forEach((n) => n.remove());
+  doc.querySelectorAll('*').forEach((el) => {
+    [...el.attributes].forEach((a) => {
+      const name = a.name.toLowerCase();
+      const value = String(a.value || '').trim().toLowerCase();
+      if (name.startsWith('on') || ((name === 'href' || name === 'src') && value.startsWith('javascript:'))) {
+        el.removeAttribute(a.name);
+      }
+    });
+  });
+  return doc.body.innerHTML;
+}
+
 function setupDropzone(zone, onFiles) {
   ['dragenter', 'dragover'].forEach((evt) =>
     zone.addEventListener(evt, (e) => {
@@ -64,15 +81,36 @@ function setupDropzone(zone, onFiles) {
       zone.classList.add('is-over');
     })
   );
-  ['dragleave', 'drop'].forEach((evt) =>
-    zone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      zone.classList.remove('is-over');
-    })
-  );
+  zone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    if (!e.relatedTarget || !zone.contains(e.relatedTarget)) zone.classList.remove('is-over');
+  });
   zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('is-over');
     if (e.dataTransfer && e.dataTransfer.files.length) onFiles(e.dataTransfer.files);
   });
+}
+
+/* Wire a file input: hand the handler a snapshot of the picked files,
+   clear the value so the same file can be chosen again, and catch
+   async failures instead of leaving unhandled rejections. */
+function onFileInput(input, handler) {
+  input.addEventListener('change', () => {
+    const files = Array.from(input.files || []);
+    input.value = '';
+    try {
+      const out = handler(files);
+      if (out && typeof out.catch === 'function') out.catch(fileError);
+    } catch (err) {
+      fileError(err);
+    }
+  });
+}
+
+function fileError(err) {
+  console.error(err);
+  toast('Could not read that file. It may be damaged, moved or locked.', 'error');
 }
 
 const ICON_DOWNLOAD =
@@ -131,26 +169,15 @@ function parseRanges(text, total) {
 }
 
 /* ==========================================================
-   Tabs
+   Panels - the home grid opens one panel at a time
    ========================================================== */
-const tabs = $$('.switch-btn');
+const allPanels = () => $$('[id^="panel-"]');
 
-function activateTab(tab) {
-  tabs.forEach((t) => {
-    const active = t === tab;
-    t.classList.toggle('is-active', active);
-    t.setAttribute('aria-selected', String(active));
-    t.tabIndex = active ? 0 : -1;
-    $('#panel-' + t.dataset.target).hidden = !active;
-  });
+function hideAllPanels() {
+  allPanels().forEach((panel) => (panel.hidden = true));
 }
 
-tabs.forEach((tab, index) => {
-  tab.addEventListener('click', () => activateTab(tab));
-  tab.addEventListener('keydown', (e) => {
-    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    const next = tabs[(index + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
-    activateTab(next);
-    next.focus();
-  });
-});
+function openPanel(panel) {
+  hideAllPanels();
+  panel.hidden = false;
+}

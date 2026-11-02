@@ -1,13 +1,14 @@
 /* ==========================================================
    Convertly - home-grid.js
-   Turns the tab bar into an iLovePDF-style grid of tool cards.
+   Builds the iLovePDF-style grid of tool cards from the page's panels.
    Load this file LAST (after every tool file).
    Styles are in css/home-grid.css (link it in index.html).
    ========================================================== */
 'use strict';
 
 (function () {
-  if (typeof tabs === 'undefined' || !tabs.length) return;
+  const panels = $$('[id^="panel-"]');
+  if (!panels.length) return;
 
   /* ---------- Icons (24x24 line icons) ---------- */
   const ICONS = {
@@ -36,7 +37,7 @@
     tool: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>',
   };
 
-  /* Same order as the tabs on the page */
+  /* Same order as the panels on the page */
   const TOOLS = [
     { title: 'PDF to JPG', desc: 'Turn every page of a PDF into a sharp JPG image.', cat: 'convert', color: '#d97706', icon: 'image' },
     { title: 'JPG to PDF', desc: 'Combine your images into one PDF in any order.', cat: 'convert', color: '#d97706', icon: 'toPdf' },
@@ -76,8 +77,8 @@
     ['tools', 'Utilities'],
   ];
 
-  const info = tabs.map((t, i) => TOOLS[i] || {
-    title: t.textContent.trim() || 'Tool',
+  const info = panels.map((p, i) => TOOLS[i] || {
+    title: 'Tool',
     desc: 'Open this tool.',
     cat: 'convert',
     color: '#2563eb',
@@ -134,22 +135,10 @@
 
   root.append(home, bar);
 
-  /* Put the grid where the tab bar was, and hide the old tab bar.
-     (Panels live outside the tab bar, so it is always hidden whole.) */
-  const tabBar = tabs[0].parentNode;
-  tabBar.parentNode.insertBefore(root, tabBar);
-  tabBar.style.display = 'none';
+  /* Put the grid ahead of the first panel */
+  panels[0].parentNode.insertBefore(root, panels[0]);
 
   /* ---------- Behaviour ---------- */
-  function hideAllPanels() {
-    tabs.forEach((t) => {
-      t.classList.remove('is-active');
-      t.setAttribute('aria-selected', 'false');
-      const panel = $('#panel-' + t.dataset.target);
-      if (panel) panel.hidden = true;
-    });
-  }
-
   function showHome() {
     hideAllPanels();
     bar.hidden = true;
@@ -158,7 +147,7 @@
   }
 
   function openTool(i) {
-    activateTab(tabs[i]);
+    openPanel(panels[i]);
     home.hidden = true;
     bar.hidden = false;
     bar.style.setProperty('--c', info[i].color);

@@ -109,7 +109,7 @@ export default function DocxToPdf({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" aria-labelledby={'tab-' + id} hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="docx"
         accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"

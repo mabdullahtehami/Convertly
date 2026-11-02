@@ -193,7 +193,7 @@
     }
   }
 
-  el.input.addEventListener('change', (e) => choose(e.target.files));
+  onFileInput(el.input, choose);
   el.remove.addEventListener('click', reset);
   el.btn.addEventListener('click', compress);
   el.download.addEventListener('click', () => {

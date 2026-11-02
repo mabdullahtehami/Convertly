@@ -6,10 +6,10 @@ import lameUrl from 'lamejs/lame.min.js?url';
 import { nextFrame } from './helpers.js';
 
 export function formatTime(sec) {
-  sec = Math.max(0, sec || 0);
-  const m = Math.floor(sec / 60);
-  const s = (sec % 60).toFixed(1).padStart(4, '0');
-  return m + ':' + s;
+  const total = Math.round(Math.max(0, sec || 0) * 10) / 10;
+  const m = Math.floor(total / 60);
+  const s = total - m * 60;
+  return m + ':' + (s < 10 ? '0' : '') + s.toFixed(1);
 }
 
 /* lame.min.js is a classic browser script (no module export),

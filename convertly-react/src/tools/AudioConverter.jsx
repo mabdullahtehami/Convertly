@@ -98,7 +98,7 @@ export default function AudioConverter({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <div className="mt">
         <h2 className="mt-title">Audio Converter</h2>
         <p className="mt-sub">Convert any audio file to MP3 or WAV, entirely in your browser.</p>

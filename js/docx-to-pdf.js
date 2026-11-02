@@ -83,7 +83,7 @@
       container.append(style);
 
       const content = document.createElement('div');
-      content.innerHTML = result.value;
+      content.innerHTML = sanitizeHtml(result.value);
       container.append(content);
       document.body.append(container);
 
@@ -118,7 +118,7 @@
     }
   }
 
-  el.input.addEventListener('change', (e) => choose(e.target.files));
+  onFileInput(el.input, choose);
   el.remove.addEventListener('click', reset);
   el.convert.addEventListener('click', convert);
   el.download.addEventListener('click', () => {

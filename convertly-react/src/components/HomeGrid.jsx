@@ -124,8 +124,9 @@ const ICONS = {
 };
 
 /* Same order as the tools / panels on the page */
-export const TOOLS = [
+const TOOLS = [
   {
+    id: 'pdf2jpg',
     title: 'PDF to JPG',
     desc: 'Turn every page of a PDF into a sharp JPG image.',
     cat: 'convert',
@@ -133,6 +134,7 @@ export const TOOLS = [
     icon: 'image',
   },
   {
+    id: 'jpg2pdf',
     title: 'JPG to PDF',
     desc: 'Combine your images into one PDF in any order.',
     cat: 'convert',
@@ -140,6 +142,7 @@ export const TOOLS = [
     icon: 'toPdf',
   },
   {
+    id: 'docx2pdf',
     title: 'Word to PDF',
     desc: 'Convert DOCX documents into easy to share PDFs.',
     cat: 'convert',
@@ -147,6 +150,7 @@ export const TOOLS = [
     icon: 'doc',
   },
   {
+    id: 'pdf2docx',
     title: 'PDF to Word',
     desc: 'Get the text of your PDF as an editable DOCX file.',
     cat: 'convert',
@@ -154,6 +158,7 @@ export const TOOLS = [
     icon: 'doc',
   },
   {
+    id: 'merge',
     title: 'Merge PDF',
     desc: 'Join several PDFs into one, in the order you want.',
     cat: 'organize',
@@ -161,6 +166,7 @@ export const TOOLS = [
     icon: 'merge',
   },
   {
+    id: 'split',
     title: 'Split PDF',
     desc: 'Extract pages or split a PDF into separate files.',
     cat: 'organize',
@@ -168,6 +174,7 @@ export const TOOLS = [
     icon: 'split',
   },
   {
+    id: 'compress',
     title: 'Compress PDF',
     desc: 'Reduce the file size while keeping good quality.',
     cat: 'optimize',
@@ -175,6 +182,7 @@ export const TOOLS = [
     icon: 'compress',
   },
   {
+    id: 'mp3',
     title: 'Video to MP3',
     desc: 'Pull the sound out of a video and save it as MP3.',
     cat: 'audio',
@@ -182,6 +190,7 @@ export const TOOLS = [
     icon: 'music',
   },
   {
+    id: 'trim',
     title: 'Audio Trimmer',
     desc: 'Cut the part you need from any audio file.',
     cat: 'audio',
@@ -189,6 +198,7 @@ export const TOOLS = [
     icon: 'scissors',
   },
   {
+    id: 'vcomp',
     title: 'Video Compressor',
     desc: 'Make big videos smaller and easier to share.',
     cat: 'video',
@@ -196,6 +206,7 @@ export const TOOLS = [
     icon: 'video',
   },
   {
+    id: 'vframe',
     title: 'Video to Image',
     desc: 'Capture any frame of a video as JPG or PNG.',
     cat: 'video',
@@ -203,6 +214,7 @@ export const TOOLS = [
     icon: 'frame',
   },
   {
+    id: 'rec',
     title: 'Audio Recorder',
     desc: 'Record your voice and download it as MP3.',
     cat: 'audio',
@@ -210,6 +222,7 @@ export const TOOLS = [
     icon: 'mic',
   },
   {
+    id: 'rotate',
     title: 'Rotate PDF',
     desc: 'Turn your PDF pages the way you need.',
     cat: 'organize',
@@ -218,6 +231,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'watermark',
     title: 'Watermark PDF',
     desc: 'Stamp a text watermark over every page.',
     cat: 'organize',
@@ -226,6 +240,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'pagenums',
     title: 'Page Numbers',
     desc: 'Add page numbers to any PDF in seconds.',
     cat: 'organize',
@@ -234,6 +249,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'metadata',
     title: 'PDF Metadata',
     desc: 'Edit the title, author and keywords of a PDF.',
     cat: 'organize',
@@ -242,6 +258,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'pdftotxt',
     title: 'PDF to Text',
     desc: 'Pull the plain text out of a PDF as a TXT file.',
     cat: 'convert',
@@ -250,6 +267,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'imgcomp',
     title: 'Image Compressor',
     desc: 'Reduce image size while keeping good quality.',
     cat: 'image',
@@ -258,6 +276,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'imgconv',
     title: 'Image Converter',
     desc: 'Convert images between JPG, PNG and WebP.',
     cat: 'image',
@@ -266,6 +285,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'imgsize',
     title: 'Image Resizer',
     desc: 'Change the width and height of any image.',
     cat: 'image',
@@ -274,6 +294,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'imgrot',
     title: 'Rotate Image',
     desc: 'Turn an image 90° or 180° in one click.',
     cat: 'image',
@@ -282,6 +303,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'audioconv',
     title: 'Audio Converter',
     desc: 'Convert audio files to MP3 or WAV.',
     cat: 'audio',
@@ -290,6 +312,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'screen',
     title: 'Screen Recorder',
     desc: 'Record your screen and save it as a video.',
     cat: 'video',
@@ -298,6 +321,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'qr',
     title: 'QR Code Generator',
     desc: 'Create a QR code from any text or link.',
     cat: 'tools',
@@ -306,6 +330,7 @@ export const TOOLS = [
     badge: true,
   },
   {
+    id: 'ocr',
     title: 'Image & PDF OCR',
     desc: 'Read the text from scans and photos.',
     cat: 'tools',
@@ -358,7 +383,6 @@ export default function HomeGrid({ activeIndex, onOpen, onBack }) {
                 key={key}
                 type="button"
                 className={cat === key ? 'hg-chip is-on' : 'hg-chip'}
-                data-cat={key}
                 onClick={() => setCat(key)}
               >
                 {label}
@@ -377,16 +401,12 @@ export default function HomeGrid({ activeIndex, onOpen, onBack }) {
 
         <div className="hg-grid">
           {TOOLS.map((tool, i) => {
-            const text = (tool.title + ' ' + tool.desc).toLowerCase();
             const ok = matches[i];
             return (
               <button
-                key={tool.title}
+                key={tool.id}
                 type="button"
                 className="hg-card"
-                data-index={i}
-                data-cat={tool.cat}
-                data-text={text}
                 hidden={!ok}
                 style={{ '--c': tool.color, '--s': tool.color + '1f' }}
                 onClick={() => onOpen(i)}

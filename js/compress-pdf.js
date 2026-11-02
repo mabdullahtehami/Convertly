@@ -70,10 +70,10 @@
     cp.progress.hidden = false;
     setProgress('compress', 0, 'Reading PDF…');
 
-    const { dpi, quality } = LEVELS[cp.level.value];
     let pdf;
 
     try {
+      const { dpi, quality } = LEVELS[cp.level.value];
       const data = new Uint8Array(await cp.file.arrayBuffer());
       pdf = await pdfjsLib.getDocument({ data }).promise;
       const total = pdf.numPages;
@@ -135,7 +135,7 @@
     }
   }
 
-  cp.input.addEventListener('change', (e) => choose(e.target.files));
+  onFileInput(cp.input, choose);
   cp.remove.addEventListener('click', reset);
   cp.btn.addEventListener('click', compress);
   cp.download.addEventListener('click', () => {

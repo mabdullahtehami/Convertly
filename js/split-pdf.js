@@ -121,7 +121,7 @@
     }
   }
 
-  sp.input.addEventListener('change', (e) => choose(e.target.files));
+  onFileInput(sp.input, choose);
   sp.remove.addEventListener('click', reset);
   sp.btn.addEventListener('click', split);
   sp.mode.addEventListener('change', () => (sp.rangeField.hidden = sp.mode.value !== 'extract'));

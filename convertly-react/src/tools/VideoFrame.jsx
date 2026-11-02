@@ -97,7 +97,7 @@ export default function VideoFrame({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <div className="mt">
         <h2 className="mt-title">Video to Image</h2>
         <p className="mt-sub">

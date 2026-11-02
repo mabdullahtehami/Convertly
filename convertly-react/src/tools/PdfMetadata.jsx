@@ -78,7 +78,7 @@ export default function PdfMetadata({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="metadata"
         accept="application/pdf,.pdf"

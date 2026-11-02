@@ -4,7 +4,7 @@
    ========================================================== */
 import { useEffect, useState } from 'react';
 import HomeGrid from './components/HomeGrid.jsx';
-import { BrandMark, PrivacyShield, TabArrow } from './lib/icons.jsx';
+import { BrandMark, PrivacyShield } from './lib/icons.jsx';
 
 import PdfToJpg from './tools/PdfToJpg.jsx';
 import JpgToPdf from './tools/JpgToPdf.jsx';
@@ -32,7 +32,7 @@ import ScreenRecorder from './tools/ScreenRecorder.jsx';
 import QrCode from './tools/QrCode.jsx';
 import Ocr from './tools/Ocr.jsx';
 
-/* Same order as the panels in index.html */
+/* One entry per tool panel, in render order */
 const PANELS = [
   { id: 'pdf2jpg', Component: PdfToJpg },
   { id: 'jpg2pdf', Component: JpgToPdf },
@@ -61,18 +61,6 @@ const PANELS = [
   { id: 'ocr', Component: Ocr },
 ];
 
-/* The original tab bar: hidden by css/home-grid.css (.switch{display:none!important}),
-   kept in the DOM so the tab/panel aria references stay valid. */
-const TABS = [
-  { id: 'pdf2jpg', chips: [{ cls: 'chip chip-pdf', text: 'PDF' }, { cls: 'chip chip-jpg', text: 'JPG' }] },
-  { id: 'jpg2pdf', chips: [{ cls: 'chip chip-jpg', text: 'JPG' }, { cls: 'chip chip-pdf', text: 'PDF' }] },
-  { id: 'docx2pdf', chips: [{ cls: 'chip', text: 'DOCX' }, { cls: 'chip chip-pdf', text: 'PDF' }] },
-  { id: 'pdf2docx', chips: [{ cls: 'chip chip-pdf', text: 'PDF' }, { cls: 'chip', text: 'DOCX' }] },
-  { id: 'merge', chips: [{ cls: 'chip chip-pdf', text: 'Merge PDF' }] },
-  { id: 'split', chips: [{ cls: 'chip chip-pdf', text: 'Split PDF' }] },
-  { id: 'compress', chips: [{ cls: 'chip chip-pdf', text: 'Compress PDF' }] },
-];
-
 export default function App() {
   const [activeIndex, setActiveIndex] = useState(null);
 
@@ -80,7 +68,8 @@ export default function App() {
      (ported from js/jpg-to-pdf.js) */
   useEffect(() => {
     const guard = (e) => {
-      if (!e.target.closest('.dropzone') && !e.target.closest('.img-list')) e.preventDefault();
+      const target = e.target instanceof Element ? e.target : null;
+      if (!target || !target.closest('.dropzone, .mt-drop, .img-list')) e.preventDefault();
     };
     window.addEventListener('dragover', guard);
     window.addEventListener('drop', guard);
@@ -108,26 +97,6 @@ export default function App() {
           <h1>Every file tool you need, in one place</h1>
           <p>Convert, merge, split and compress PDFs, and work with images, audio and video. No upload, no sign-up.</p>
         </section>
-
-        <div className="switch" role="tablist" aria-label="Choose a tool" hidden>
-          {TABS.map((tab, tabIndex) => (
-            <button
-              key={tab.id}
-              className="switch-btn"
-              role="tab"
-              id={'tab-' + tab.id}
-              aria-selected="false"
-              aria-controls={'panel-' + tab.id}
-              data-target={tab.id}
-              type="button"
-              tabIndex={tabIndex === 0 ? 0 : -1}
-            >
-              <span className={tab.chips[0].cls}>{tab.chips[0].text}</span>
-              <TabArrow />
-              {tab.chips[1] ? <span className={tab.chips[1].cls}>{tab.chips[1].text}</span> : null}
-            </button>
-          ))}
-        </div>
 
         <HomeGrid activeIndex={activeIndex} onOpen={setActiveIndex} onBack={() => setActiveIndex(null)} />
 

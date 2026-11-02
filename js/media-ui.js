@@ -7,48 +7,25 @@
 'use strict';
 
 const MT = (function () {
-  /* ---------- Add a new tab + panel to the page ---------- */
+  /* ---------- Add a new panel to the page ---------- */
   function addTool(id, label, html) {
-    const first = tabs[0];
-
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = first.className.replace(/\bis-active\b/g, '').trim();
-    btn.setAttribute('role', 'tab');
-    btn.setAttribute('aria-selected', 'false');
-    btn.tabIndex = -1;
-    btn.dataset.target = id;
-    btn.textContent = label;
-    first.parentNode.appendChild(btn);
-
     /* Clone the type and look of the last existing panel */
     const panels = $$('[id^="panel-"]');
     const last = panels[panels.length - 1];
     const panel = document.createElement(last.tagName.toLowerCase());
     panel.className = last.className;
     panel.id = 'panel-' + id;
-    panel.setAttribute('role', 'tabpanel');
+    panel.setAttribute('aria-label', label);
     panel.hidden = true;
     panel.innerHTML = '<div class="mt">' + html + '</div>';
     last.after(panel);
-
-    /* Register with the existing tab system from common.js */
-    tabs.push(btn);
-    btn.addEventListener('click', () => activateTab(btn));
-    btn.addEventListener('keydown', (e) => {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      const i = tabs.indexOf(btn);
-      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
-      activateTab(next);
-      next.focus();
-    });
     return panel;
   }
 
   /* ---------- Small HTML pieces ---------- */
   const dropHtml = (p, accept, text) =>
     '<div class="mt-drop" id="' + p + 'Drop"><p>' + text + '</p>' +
-    '<label class="mt-btn">Choose file<input type="file" id="' + p + 'Input" accept="' + accept + '" hidden></label></div>';
+    '<label class="mt-btn">Choose file<input type="file" id="' + p + 'Input" accept="' + accept + '" class="vis-hidden"></label></div>';
 
   const cardHtml = (p) =>
     '<div class="mt-card" id="' + p + 'Card" hidden><div><strong id="' + p + 'Name"></strong>' +
@@ -60,10 +37,10 @@ const MT = (function () {
     '<div class="mt-bar" id="' + p + 'Bar"></div></div><p id="' + p + 'ProgressText"></p></div>';
 
   function formatTime(sec) {
-    sec = Math.max(0, sec || 0);
-    const m = Math.floor(sec / 60);
-    const s = (sec % 60).toFixed(1).padStart(4, '0');
-    return m + ':' + s;
+    const total = Math.round(Math.max(0, sec || 0) * 10) / 10;
+    const m = Math.floor(total / 60);
+    const s = total - m * 60;
+    return m + ':' + (s < 10 ? '0' : '') + s.toFixed(1);
   }
 
   /* ---------- Audio helpers ---------- */

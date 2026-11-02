@@ -77,7 +77,7 @@ export default function ImageCompressor({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="imgcomp"
         accept="image/*"

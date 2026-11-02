@@ -23,9 +23,11 @@ export default function ScreenRecorder({ id, hidden }) {
   const timerRef = useRef(null);
   const startedAtRef = useRef(0);
   const urlRef = useRef(null);
+  const startingRef = useRef(false);
 
   const [time, setTime] = useState('0:00');
   const [recording, setRecording] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [blob, setBlob] = useState(null);
   const [playerUrl, setPlayerUrl] = useState(null);
   const [resultsShow, setResultsShow] = useState(false);
@@ -50,55 +52,79 @@ export default function ScreenRecorder({ id, hidden }) {
   }
 
   async function start() {
+    if (startingRef.current || recording) return;
     if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia || !window.MediaRecorder) {
       toast('Screen recording is not supported here. Use Chrome, Edge or Firefox on https or localhost.', 'error');
       return;
     }
+    startingRef.current = true;
+    setStarting(true);
     try {
-      streamRef.current = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      try {
+        streamRef.current = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      } catch (err) {
+        console.error(err);
+        toast('Screen recording was cancelled or blocked. Please allow screen sharing.', 'error');
+        return;
+      }
+
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+      urlRef.current = null;
+      setBlob(null);
+      setPlayerUrl(null);
+      chunksRef.current = [];
+      setPlayerShow(false);
+      setResultsShow(false);
+
+      const recorder = new MediaRecorder(streamRef.current);
+      recorderRef.current = recorder;
+      recorder.ondataavailable = (e) => e.data && e.data.size && chunksRef.current.push(e.data);
+
+      /* The browser's own "Stop sharing" button ends the recording too.
+         Guard so a stale track from an earlier session cannot stop the current recorder. */
+      const videoTrack = streamRef.current.getVideoTracks()[0];
+      const onTrackEnded = () => {
+        if (recorderRef.current !== recorder) return;
+        stop();
+      };
+
+      recorder.onstop = () => {
+        if (videoTrack) videoTrack.removeEventListener('ended', onTrackEnded);
+        clearInterval(timerRef.current);
+        stopStream();
+        const out = new Blob(chunksRef.current, { type: recorder.mimeType || 'video/webm' });
+        urlRef.current = URL.createObjectURL(out);
+        setBlob(out);
+        setPlayerUrl(urlRef.current);
+        setPlayerShow(true);
+        setResultsShow(true);
+        setRecording(false);
+        toast('Recording saved. You can play or download it.', 'success');
+      };
+
+      if (videoTrack) videoTrack.addEventListener('ended', onTrackEnded);
+
+      recorder.start();
+      startedAtRef.current = Date.now();
+      setTime('0:00');
+      timerRef.current = setInterval(() => setTime(fmt(Date.now() - startedAtRef.current)), 250);
+      setRecording(true);
     } catch (err) {
       console.error(err);
-      toast('Screen recording was cancelled or blocked. Please allow screen sharing.', 'error');
-      return;
-    }
-
-    if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-    urlRef.current = null;
-    setBlob(null);
-    setPlayerUrl(null);
-    chunksRef.current = [];
-    setPlayerShow(false);
-    setResultsShow(false);
-
-    const recorder = new MediaRecorder(streamRef.current);
-    recorderRef.current = recorder;
-    recorder.ondataavailable = (e) => e.data && e.data.size && chunksRef.current.push(e.data);
-    recorder.onstop = () => {
       clearInterval(timerRef.current);
       stopStream();
-      const out = new Blob(chunksRef.current, { type: recorder.mimeType || 'video/webm' });
-      urlRef.current = URL.createObjectURL(out);
-      setBlob(out);
-      setPlayerUrl(urlRef.current);
-      setPlayerShow(true);
-      setResultsShow(true);
+      recorderRef.current = null;
+      chunksRef.current = [];
       setRecording(false);
-      toast('Recording saved. You can play or download it.', 'success');
-    };
-
-    /* The browser's own "Stop sharing" button ends the recording too */
-    const videoTrack = streamRef.current.getVideoTracks()[0];
-    if (videoTrack) videoTrack.addEventListener('ended', stop);
-
-    recorder.start();
-    startedAtRef.current = Date.now();
-    setTime('0:00');
-    timerRef.current = setInterval(() => setTime(fmt(Date.now() - startedAtRef.current)), 250);
-    setRecording(true);
+      toast('Could not start the screen recording. Please try again.', 'error');
+    } finally {
+      startingRef.current = false;
+      setStarting(false);
+    }
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <div className="mt">
         <h2 className="mt-title">Screen Recorder</h2>
         <p className="mt-sub">Record your screen (and tab audio if you allow it) and download the video.</p>
@@ -108,7 +134,7 @@ export default function ScreenRecorder({ id, hidden }) {
         </div>
 
         <div className="mt-row">
-          <button type="button" className="mt-btn mt-primary" id="screenStart" disabled={recording} onClick={start}>
+          <button type="button" className="mt-btn mt-primary" id="screenStart" disabled={recording || starting} onClick={start}>
             Start recording
           </button>
           <button type="button" className="mt-btn mt-danger" id="screenStop" disabled={!recording} onClick={stop}>

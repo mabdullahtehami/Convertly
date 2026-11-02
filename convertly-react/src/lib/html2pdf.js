@@ -8,6 +8,6 @@ const html2pdf =
     ? mod
     : mod && typeof mod.default === 'function'
       ? mod.default
-      : typeof window !== 'undefined' ? window.html2pdf : null;
+      : null;
 
 export default html2pdf;

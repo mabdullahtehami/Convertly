@@ -41,7 +41,7 @@
     preview: $('#vframePreview'),
     download: $('#vframeDownload'),
   };
-  const state = { file: null, url: null, blob: null, previewUrl: null, ext: 'jpg' };
+  const state = { file: null, url: null, blob: null, previewUrl: null, ext: 'jpg', at: 0 };
 
   function clearUrls() {
     if (state.url) URL.revokeObjectURL(state.url);
@@ -52,6 +52,7 @@
   function reset() {
     clearUrls();
     state.file = state.blob = null;
+    state.at = 0;
     el.input.value = '';
     el.player.pause();
     el.player.removeAttribute('src');
@@ -95,6 +96,7 @@
 
       const isPng = el.format.value === 'png';
       state.ext = isPng ? 'png' : 'jpg';
+      state.at = v.currentTime;
       state.blob = await canvasToBlob(canvas, isPng ? 'image/png' : 'image/jpeg', 0.92);
 
       if (state.previewUrl) URL.revokeObjectURL(state.previewUrl);
@@ -108,12 +110,12 @@
     }
   }
 
-  el.input.addEventListener('change', (e) => choose(e.target.files));
+  onFileInput(el.input, choose);
   el.remove.addEventListener('click', reset);
   el.btn.addEventListener('click', capture);
   el.download.addEventListener('click', () => {
     if (!state.blob || !state.file) return;
-    const t = Math.round(el.player.currentTime * 10) / 10;
+    const t = Math.round(state.at * 10) / 10;
     downloadBlob(state.blob, baseName(state.file.name) + '-' + t + 's.' + state.ext);
   });
   setupDropzone(el.drop, choose);

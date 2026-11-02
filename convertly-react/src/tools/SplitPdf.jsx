@@ -68,9 +68,6 @@ export default function SplitPdf({ id, hidden }) {
     } else if (pages < 2) {
       toast('This PDF has only one page.', 'error');
       return;
-    } else if (!JSZip) {
-      toast('ZIP library failed to load. Refresh and try again.', 'error');
-      return;
     }
 
     setBusy(true);
@@ -118,7 +115,7 @@ export default function SplitPdf({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" aria-labelledby={'tab-' + id} hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="split"
         accept="application/pdf,.pdf"

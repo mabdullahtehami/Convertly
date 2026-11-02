@@ -63,23 +63,18 @@
     el.btn.disabled = true;
   }
 
-  /* Every PDF page becomes a canvas, at 2x so small print stays readable */
-  async function renderPages(file) {
-    const data = new Uint8Array(await file.arrayBuffer());
-    const pdf = await pdfjsLib.getDocument({ data }).promise;
-    const canvases = [];
-    for (let n = 1; n <= pdf.numPages; n++) {
-      const page = await pdf.getPage(n);
-      const viewport = page.getViewport({ scale: 2 });
-      const canvas = document.createElement('canvas');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-      canvases.push(canvas);
-      page.cleanup();
-    }
-    pdf.destroy().catch(() => {});
-    return canvases;
+  /* One PDF page at a time, at 2x so small print stays readable.
+     The canvas is dropped again after OCR, so a long PDF never keeps
+     every rasterised page in memory. */
+  async function renderPage(pdf, n) {
+    const page = await pdf.getPage(n);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    page.cleanup();
+    return canvas;
   }
 
   async function convert() {
@@ -97,10 +92,15 @@
     setProgress('ocr', 0, 'Preparing the OCR engine…');
 
     let worker;
+    let pdf = null;
     let done = 0;
     try {
-      const images = isPdfFile(state.file) ? await renderPages(state.file) : [state.file];
-      const total = images.length;
+      const isPdf = isPdfFile(state.file);
+      if (isPdf) {
+        const data = new Uint8Array(await state.file.arrayBuffer());
+        pdf = await pdfjsLib.getDocument({ data }).promise;
+      }
+      const total = isPdf ? pdf.numPages : 1;
 
       const Tesseract = await import('https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.esm.min.js');
       worker = await Tesseract.createWorker('eng', 1, {
@@ -115,9 +115,11 @@
       });
 
       const found = [];
-      for (const image of images) {
+      for (let n = 1; n <= total; n++) {
+        const image = pdf ? await renderPage(pdf, n) : state.file;
         const { data } = await worker.recognize(image);
         found.push(data.text.trim());
+        if (image !== state.file) image.width = image.height = 0; /* free the canvas */
         done++;
       }
 
@@ -139,6 +141,7 @@
       el.progress.hidden = true;
       toast('Could not read this file. Try a JPG, PNG or an unprotected PDF.', 'error');
     } finally {
+      if (pdf) pdf.destroy().catch(() => {});
       if (worker) await worker.terminate().catch(() => {});
       state.busy = false;
       el.btn.textContent = 'Scan for text';
@@ -146,7 +149,7 @@
     }
   }
 
-  el.input.addEventListener('change', (e) => choose(e.target.files));
+  onFileInput(el.input, choose);
   el.remove.addEventListener('click', reset);
   el.btn.addEventListener('click', convert);
   el.download.addEventListener('click', () => {

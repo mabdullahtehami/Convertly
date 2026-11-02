@@ -95,7 +95,7 @@ export default function VideoToMp3({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <div className="mt">
         <h2 className="mt-title">Video / Audio to MP3</h2>
         <p className="mt-sub">

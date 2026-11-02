@@ -29,9 +29,11 @@ export default function AudioRecorder({ id, hidden }) {
   const timerRef = useRef(null);
   const startedAtRef = useRef(0);
   const urlRef = useRef(null);
+  const startingRef = useRef(false);
 
   const [time, setTime] = useState('0:00');
   const [recording, setRecording] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [blob, setBlob] = useState(null);
   const [playerUrl, setPlayerUrl] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -54,48 +56,65 @@ export default function AudioRecorder({ id, hidden }) {
   }
 
   async function start() {
+    if (startingRef.current || recording) return;
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
       toast('Recording is not supported here. Use Chrome, Edge or Firefox on https or localhost.', 'error');
       return;
     }
+    startingRef.current = true;
+    setStarting(true);
     try {
-      streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+      try {
+        streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (err) {
+        console.error(err);
+        toast('Microphone access was blocked. Please allow the microphone and try again.', 'error');
+        return;
+      }
+
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+      urlRef.current = null;
+      setBlob(null);
+      setPlayerUrl(null);
+      chunksRef.current = [];
+      setPlayerShow(false);
+      setResultsShow(false);
+      setProgress((p) => ({ ...p, show: false }));
+
+      const recorder = new MediaRecorder(streamRef.current);
+      recorderRef.current = recorder;
+      recorder.ondataavailable = (e) => e.data && e.data.size && chunksRef.current.push(e.data);
+      recorder.onstop = () => {
+        clearInterval(timerRef.current);
+        stopStream();
+        const out = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+        urlRef.current = URL.createObjectURL(out);
+        setBlob(out);
+        setPlayerUrl(urlRef.current);
+        setPlayerShow(true);
+        setResultsShow(true);
+        setRecording(false);
+        toast('Recording saved. You can play or download it.', 'success');
+      };
+
+      recorder.start();
+      startedAtRef.current = Date.now();
+      setTime('0:00');
+      timerRef.current = setInterval(() => setTime(fmt(Date.now() - startedAtRef.current)), 250);
+      setRecording(true);
     } catch (err) {
       console.error(err);
-      toast('Microphone access was blocked. Please allow the microphone and try again.', 'error');
-      return;
-    }
-
-    if (urlRef.current) URL.revokeObjectURL(urlRef.current);
-    urlRef.current = null;
-    setBlob(null);
-    setPlayerUrl(null);
-    chunksRef.current = [];
-    setPlayerShow(false);
-    setResultsShow(false);
-    setProgress((p) => ({ ...p, show: false }));
-
-    const recorder = new MediaRecorder(streamRef.current);
-    recorderRef.current = recorder;
-    recorder.ondataavailable = (e) => e.data && e.data.size && chunksRef.current.push(e.data);
-    recorder.onstop = () => {
       clearInterval(timerRef.current);
       stopStream();
-      const out = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
-      urlRef.current = URL.createObjectURL(out);
-      setBlob(out);
-      setPlayerUrl(urlRef.current);
-      setPlayerShow(true);
-      setResultsShow(true);
+      recorderRef.current = null;
+      chunksRef.current = [];
       setRecording(false);
-      toast('Recording saved. You can play or download it.', 'success');
-    };
-
-    recorder.start();
-    startedAtRef.current = Date.now();
-    setTime('0:00');
-    timerRef.current = setInterval(() => setTime(fmt(Date.now() - startedAtRef.current)), 250);
-    setRecording(true);
+      setProgress((p) => ({ ...p, show: false }));
+      toast('Could not start the recording. Please try again.', 'error');
+    } finally {
+      startingRef.current = false;
+      setStarting(false);
+    }
   }
 
   function stop() {
@@ -133,7 +152,7 @@ export default function AudioRecorder({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <div className="mt">
         <h2 className="mt-title">Audio Recorder</h2>
         <p className="mt-sub">Record your voice from the microphone and download it.</p>
@@ -143,7 +162,7 @@ export default function AudioRecorder({ id, hidden }) {
         </div>
 
         <div className="mt-row">
-          <button type="button" className="mt-btn mt-primary" id="recStart" disabled={recording} onClick={start}>
+          <button type="button" className="mt-btn mt-primary" id="recStart" disabled={recording || starting} onClick={start}>
             Start recording
           </button>
           <button type="button" className="mt-btn mt-danger" id="recStop" disabled={!recording} onClick={stop}>

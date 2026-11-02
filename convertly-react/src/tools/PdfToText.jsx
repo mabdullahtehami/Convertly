@@ -38,10 +38,6 @@ export default function PdfToText({ id, hidden }) {
 
   async function convert() {
     if (!file || busy) return;
-    if (!pdfjsLib) {
-      toast('PDF library failed to load. Check your internet and refresh.', 'error');
-      return;
-    }
 
     setBusy(true);
     setProgress({ show: true, percent: 0, text: 'Reading PDF…' });
@@ -105,7 +101,7 @@ export default function PdfToText({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="pdftotxt"
         accept="application/pdf,.pdf"

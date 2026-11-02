@@ -55,7 +55,7 @@ export default function QrCode({ id, hidden }) {
   }
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <div className="options">
         <div className="field">
           <label htmlFor="qrText">Text or URL</label>

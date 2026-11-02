@@ -101,10 +101,6 @@ export default function JpgToPdf({ id, hidden }) {
 
   async function createPdf() {
     if (!items.length || busy) return;
-    if (!jsPDF) {
-      toast('PDF library failed to load. Check your internet connection and refresh.', 'error');
-      return;
-    }
 
     setBusy(true);
     setProgress({ show: true, percent: 0, text: 'Building PDF…' });
@@ -170,17 +166,13 @@ export default function JpgToPdf({ id, hidden }) {
   const count = items.length;
 
   return (
-    <section className="panel" id={'panel-' + id} role="tabpanel" aria-labelledby={'tab-' + id} hidden={hidden}>
+    <section className="panel" id={'panel-' + id} hidden={hidden}>
       <Dropzone
         id="img"
         accept="image/*"
         multiple
         inputRef={inputRef}
-        onFiles={(fileList) => {
-          const files = [...fileList];
-          if (inputRef.current) inputRef.current.value = '';
-          addImages(files);
-        }}
+        onFiles={addImages}
         icon={DzImage}
         title={
           <>

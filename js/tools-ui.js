@@ -23,50 +23,27 @@ const UI = (function () {
     '<path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4"/>' +
     '<path d="M18 23h14M18 29h14M18 35h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>';
 
-  /* ---------- Add a new tab + panel to the page ----------
+  /* ---------- Add a new panel to the page ----------
      Same registration as MT.addTool (media-ui.js), but the panel
      keeps the regular .panel markup used by the PDF tools. */
   function addTool(id, label, html) {
-    const first = tabs[0];
-
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = first.className.replace(/\bis-active\b/g, '').trim();
-    btn.setAttribute('role', 'tab');
-    btn.setAttribute('aria-selected', 'false');
-    btn.tabIndex = -1;
-    btn.dataset.target = id;
-    btn.textContent = label;
-    first.parentNode.appendChild(btn);
-
     /* Clone the type and look of the last existing panel */
     const panels = $$('[id^="panel-"]');
     const last = panels[panels.length - 1];
     const panel = document.createElement(last.tagName.toLowerCase());
     panel.className = last.className;
     panel.id = 'panel-' + id;
-    panel.setAttribute('role', 'tabpanel');
+    panel.setAttribute('aria-label', label);
     panel.hidden = true;
     panel.innerHTML = html;
     last.after(panel);
-
-    /* Register with the tab system from common.js */
-    tabs.push(btn);
-    btn.addEventListener('click', () => activateTab(btn));
-    btn.addEventListener('keydown', (e) => {
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      const i = tabs.indexOf(btn);
-      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
-      activateTab(next);
-      next.focus();
-    });
     return panel;
   }
 
   /* ---------- Small HTML pieces (same markup as index.html) ---------- */
   const dropHtml = (p, accept, icon, title, sub) =>
     '<label class="dropzone" id="' + p + 'Drop" for="' + p + 'Input">' +
-    '<input type="file" id="' + p + 'Input" accept="' + accept + '" hidden>' +
+    '<input type="file" id="' + p + 'Input" accept="' + accept + '" class="vis-hidden">' +
     '<svg viewBox="0 0 48 48" class="dz-icon" aria-hidden="true">' + icon + '</svg>' +
     '<span class="dz-title">' + title + '</span>' +
     '<span class="dz-sub">' + sub + '</span></label>';

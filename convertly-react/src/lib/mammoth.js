@@ -10,6 +10,6 @@ const mammoth =
     ? mod
     : mod && mod.default && typeof mod.default.convertToHtml === 'function'
       ? mod.default
-      : typeof window !== 'undefined' ? window.mammoth : null;
+      : null;
 
 export default mammoth;
