@@ -1,12 +1,12 @@
 /* ==========================================================
    Convertly React - entry point
-   CSS is imported (and copied 1:1) in the required order:
-   style.css -> home-grid.css -> media-tools.css
+   CSS is shared with the vanilla version (shared/css) and must
+   load in this order: style -> home-grid -> media-tools
    ========================================================== */
 import { createRoot } from 'react-dom/client';
-import './css/style.css';
-import './css/home-grid.css';
-import './css/media-tools.css';
+import '../../shared/css/style.css';
+import '../../shared/css/home-grid.css';
+import '../../shared/css/media-tools.css';
 
 import App from './App.jsx';
 import { ToastProvider } from './lib/toast.jsx';
