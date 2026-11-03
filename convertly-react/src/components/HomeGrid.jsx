@@ -120,6 +120,12 @@ const ICONS = {
       <path d="M8 10h8M8 14h5" />
     </>
   ),
+  pencil: (
+    <>
+      <path d="M4 20h4L18.5 9.5a2.12 2.12 0 0 0-3-3L5 17v3z" />
+      <path d="M13.5 6.5l3 3" />
+    </>
+  ),
   tool: <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z" />,
 };
 
@@ -336,6 +342,15 @@ const TOOLS = [
     cat: 'tools',
     color: '#64748b',
     icon: 'scan',
+    badge: true,
+  },
+  {
+    id: 'pdfedit',
+    title: 'Edit PDF Text',
+    desc: 'Change the text written inside any PDF.',
+    cat: 'organize',
+    color: '#ef4b2b',
+    icon: 'pencil',
     badge: true,
   },
 ];

@@ -1,6 +1,6 @@
 # Convertly
 
-A free file toolbox with **25 tools** for PDF, images, audio, video and more.
+A free file toolbox with **26 tools** for PDF, images, audio, video and more.
 Everything runs right in your browser — **no uploads, no sign-up**.
 
 ## Tools
@@ -19,7 +19,7 @@ Everything runs right in your browser — **no uploads, no sign-up**.
 | Page Numbers | Number every PDF page | Audio Converter | Convert audio to MP3/WAV |
 | PDF Metadata | Edit title, author, keywords | Screen Recorder | Record your screen |
 | PDF to Text | Pull out the plain text | QR Code Generator | Make a QR code from text |
-| Image & PDF OCR | Read text from scans & photos | | |
+| Image & PDF OCR | Read text from scans & photos | Edit PDF Text | Change the text inside any PDF |
 
 ## Two versions
 

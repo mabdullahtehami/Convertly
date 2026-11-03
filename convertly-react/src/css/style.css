@@ -177,6 +177,20 @@ input[type="range"] { width: 100%; height: 44px; accent-color: var(--cobalt); cu
 .img-meta span { color: var(--muted); font-size: 0.85rem; }
 .img-tools { display: flex; gap: 6px; }
 
+/* Edit PDF Text (page preview + editable line overlay) */
+.pe-view { display: flex; flex-direction: column; gap: 12px; }
+.pe-pages { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.pe-pages span { font-weight: 600; min-width: 110px; text-align: center; }
+.pe-stage { max-height: 70vh; overflow: auto; border: 1px solid rgba(128,128,128,.35); border-radius: 12px; background: #f3f4f6; padding: 12px; }
+.pe-page { position: relative; display: inline-block; }
+.pe-page canvas { display: block; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+.pe-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.pe-item { position: absolute; box-sizing: border-box; padding: 0; margin: 0; border: 1px solid transparent; border-radius: 2px; color: #111; font-family: Helvetica, Arial, sans-serif; line-height: 1; caret-color: var(--cobalt); }
+.pe-item:hover { border-color: rgba(31,79,216,.5); }
+.pe-item:focus { border-color: var(--cobalt); outline: none; box-shadow: 0 0 0 2px rgba(31,79,216,.25); }
+.pe-item.is-changed { border-color: var(--cobalt); background-clip: padding-box; }
+.pe-hint { margin: 0; font-size: 0.85rem; opacity: 0.7; text-align: center; }
+
 /* Toast */
 .toast {
   position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 24px);

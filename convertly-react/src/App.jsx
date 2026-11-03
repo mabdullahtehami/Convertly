@@ -31,6 +31,7 @@ import AudioConverter from './tools/AudioConverter.jsx';
 import ScreenRecorder from './tools/ScreenRecorder.jsx';
 import QrCode from './tools/QrCode.jsx';
 import Ocr from './tools/Ocr.jsx';
+import PdfEditor from './tools/PdfEditor.jsx';
 
 /* One entry per tool panel, in render order */
 const PANELS = [
@@ -59,6 +60,7 @@ const PANELS = [
   { id: 'screen', Component: ScreenRecorder },
   { id: 'qr', Component: QrCode },
   { id: 'ocr', Component: Ocr },
+  { id: 'pdfedit', Component: PdfEditor },
 ];
 
 export default function App() {
