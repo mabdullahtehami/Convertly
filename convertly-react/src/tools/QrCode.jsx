@@ -14,6 +14,10 @@ export default function QrCode({ id, hidden }) {
   const [text, setText] = useState('');
   const [size, setSize] = useState('512');
   const [resultsShow, setResultsShow] = useState(false);
+  /* What the preview actually shows - downloads must use this, not the
+     live textarea, or editing the box after generating would change
+     (or empty) the file that gets saved. */
+  const [generated, setGenerated] = useState('');
 
   const options = () => ({ width: Number(size), margin: 2 });
 
@@ -35,21 +39,24 @@ export default function QrCode({ id, hidden }) {
     }
     return run(async () => {
       await QRCode.toCanvas(canvasRef.current, words, options()); // draws the preview
+      setGenerated(words);
       setResultsShow(true);
     });
   }
 
   function downloadPng() {
+    if (!generated) return;
     return run(async () => {
-      const dataUrl = await QRCode.toDataURL(text.trim(), options());
+      const dataUrl = await QRCode.toDataURL(generated, options());
       const blob = await (await fetch(dataUrl)).blob(); // data URL -> Blob so downloadBlob() can be reused
       downloadBlob(blob, 'qr-code.png');
     });
   }
 
   function downloadSvg() {
+    if (!generated) return;
     return run(async () => {
-      const svg = await QRCode.toString(text.trim(), { ...options(), type: 'svg' });
+      const svg = await QRCode.toString(generated, { ...options(), type: 'svg' });
       downloadBlob(new Blob([svg], { type: 'image/svg+xml' }), 'qr-code.svg');
     });
   }

@@ -8,7 +8,7 @@ import FileCard from '../components/FileCard.jsx';
 import { DzFileArrow } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
 import { baseName, downloadBlob, isPdfFile } from '../lib/helpers.js';
-import { libsReady, openPdfLib } from '../lib/pdfLib.js';
+import { openPdfLib } from '../lib/pdfLib.js';
 
 const EMPTY = { title: '', author: '', subject: '', keywords: '' };
 
@@ -28,7 +28,6 @@ export default function PdfMetadata({ id, hidden }) {
       toast('Please select a PDF file.', 'error');
       return;
     }
-    if (!libsReady(toast)) return;
     const doc = await openPdfLib(await chosen.arrayBuffer()); // null when damaged or protected
     if (!doc) {
       toast('Could not open this PDF. It may be damaged or protected.', 'error');

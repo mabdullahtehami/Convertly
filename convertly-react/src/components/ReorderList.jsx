@@ -72,12 +72,11 @@ export default function ReorderList({
               <span>{renderMeta(item)}</span>
             </div>
             <div className="img-tools">
-              <IconButton label="Move up" action="up" disabled={i === 0} onClick={() => onMove(i, i - 1)}>
+              <IconButton label="Move up" disabled={i === 0} onClick={() => onMove(i, i - 1)}>
                 {ICON_UP}
               </IconButton>
               <IconButton
                 label="Move down"
-                action="down"
                 disabled={i === items.length - 1}
                 onClick={() => onMove(i, i + 1)}
               >
@@ -85,8 +84,6 @@ export default function ReorderList({
               </IconButton>
               <IconButton
                 label={draggable ? 'Remove image' : 'Remove file'}
-                action="remove"
-                disabled={false}
                 extraClass="danger"
                 onClick={() => onRemove(i)}
               >

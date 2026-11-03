@@ -252,8 +252,6 @@ export default function PdfToJpg({ id, hidden }) {
                 </div>
                 <IconButton
                   label={'Download page ' + result.pageNo}
-                  action="download"
-                  disabled={false}
                   onClick={() => downloadBlob(result.blob, result.name)}
                 >
                   {ICON_DOWNLOAD}

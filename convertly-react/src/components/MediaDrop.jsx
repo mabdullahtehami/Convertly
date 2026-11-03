@@ -2,17 +2,13 @@
    Convertly React - .mt-drop (media tool file picker)
    Same markup as MT.dropHtml() in js/media-ui.js
    ========================================================== */
-import { useDropzone } from '../hooks/useDropzone.js';
+import { deliverFiles, useDropzone } from '../hooks/useDropzone.js';
 import { useToast } from '../lib/toast.jsx';
 
 export default function MediaDrop({ id, accept, text, onFiles, inputRef }) {
   const toast = useToast();
-  const { isOver, dropProps } = useDropzone(onFiles);
-
-  function fileError(err) {
-    console.error(err);
-    toast('Could not read that file. It may be damaged, moved or locked.', 'error');
-  }
+  const fileError = () => toast('Could not read that file. It may be damaged, moved or locked.', 'error');
+  const { isOver, dropProps } = useDropzone(onFiles, fileError);
 
   return (
     <div className={isOver ? 'mt-drop is-over' : 'mt-drop'} id={id + 'Drop'} {...dropProps}>
@@ -28,12 +24,7 @@ export default function MediaDrop({ id, accept, text, onFiles, inputRef }) {
           onChange={(e) => {
             const files = Array.from(e.target.files || []);
             e.target.value = '';
-            try {
-              const out = onFiles(files);
-              if (out && typeof out.catch === 'function') out.catch(fileError);
-            } catch (err) {
-              fileError(err);
-            }
+            deliverFiles(onFiles, fileError, files);
           }}
         />
       </label>

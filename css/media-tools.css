@@ -4,7 +4,6 @@
    Link this file in the <head> of index.html.
    ========================================================== */
 .mt{display:flex;flex-direction:column;gap:14px}
-.mt [hidden]{display:none !important}
 .mt-title{margin:0;font-size:1.25rem}
 .mt-sub{margin:0;opacity:.75}
 .mt-drop{border:2px dashed rgba(128,128,128,.5);border-radius:14px;padding:28px 16px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;transition:.15s}

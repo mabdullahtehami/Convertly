@@ -20,6 +20,9 @@ export default function VideoFrame({ id, hidden }) {
   const [blob, setBlob] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [ext, setExt] = useState('jpg');
+  /* Timestamp of the frame that was captured - the filename must not
+     re-read player.currentTime when Download is clicked. */
+  const [stamp, setStamp] = useState(0);
   const [showPlayer, setShowPlayer] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
   const [resultsShow, setResultsShow] = useState(false);
@@ -40,6 +43,7 @@ export default function VideoFrame({ id, hidden }) {
     clearUrls();
     setFile(null);
     setBlob(null);
+    setStamp(0);
     setMeta('');
     if (inputRef.current) inputRef.current.value = '';
     const player = playerRef.current;
@@ -62,6 +66,7 @@ export default function VideoFrame({ id, hidden }) {
     clearUrls();
     setFile(chosen);
     setBlob(null);
+    setStamp(0);
     setUrl(URL.createObjectURL(chosen));
     setMeta(formatBytes(chosen.size));
     setShowPlayer(true);
@@ -87,6 +92,7 @@ export default function VideoFrame({ id, hidden }) {
 
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setBlob(output);
+      setStamp(Math.round(v.currentTime * 10) / 10); // remember the moment we captured
       setPreviewUrl(URL.createObjectURL(output));
       setResultsShow(true);
       toast('Frame captured.', 'success');
@@ -155,9 +161,7 @@ export default function VideoFrame({ id, hidden }) {
             id="vframeDownload"
             onClick={() => {
               if (!blob || !file) return;
-              const player = playerRef.current;
-              const t = Math.round(player.currentTime * 10) / 10;
-              downloadBlob(blob, baseName(file.name) + '-' + t + 's.' + ext);
+              downloadBlob(blob, baseName(file.name) + '-' + stamp + 's.' + ext);
             }}
           >
             Download image

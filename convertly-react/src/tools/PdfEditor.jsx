@@ -12,7 +12,7 @@ import { DzFileLines } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
 import { baseName, downloadBlob, formatBytes, isPdfFile } from '../lib/helpers.js';
 import { pdfjsLib } from '../lib/pdfjs.js';
-import { PDFDocument, StandardFonts, rgb, libsReady } from '../lib/pdfLib.js';
+import { PDFDocument, StandardFonts, rgb } from '../lib/pdfLib.js';
 
 /* ---------- Colour helpers (one pixel read per render) ---------- */
 function sampleBg(data, box) {
@@ -244,7 +244,6 @@ export default function PdfEditor({ id, hidden }) {
       toast('Please choose a PDF file.', 'error');
       return;
     }
-    if (!libsReady()) return;
     clearDoc();
     try {
       const data = new Uint8Array(await chosen.arrayBuffer());
@@ -308,7 +307,6 @@ export default function PdfEditor({ id, hidden }) {
       toast('Nothing to change yet - click a line and edit it first.', 'error');
       return;
     }
-    if (!libsReady()) return;
 
     setSaving(true);
     setProgress({ show: true, percent: 20, text: 'Re-writing the edited lines…' });

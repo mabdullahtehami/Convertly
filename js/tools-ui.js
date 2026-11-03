@@ -1,7 +1,7 @@
 /* ==========================================================
    Convertly - tools-ui.js
-   Shared helpers for the second batch of tools (13-24):
-   new tab + panel + the small HTML pieces they all reuse.
+   Shared helpers for the second batch of tools (13-26):
+   the panel plus the small HTML pieces they all reuse.
    Load AFTER common.js and BEFORE the new tool files.
    ========================================================== */
 'use strict';

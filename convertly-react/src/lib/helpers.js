@@ -30,7 +30,18 @@ export function canvasToBlob(canvas, type, quality) {
   );
 }
 
-export const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
+/* Yield to the browser so the progress bar can repaint.
+   rAF is suspended in a hidden tab, so a timer takes over there -
+   otherwise a long conversion freezes the moment the user switches
+   away from the tab. */
+export const nextFrame = () =>
+  new Promise((r) => {
+    const fallback = setTimeout(r, 100);
+    requestAnimationFrame(() => {
+      clearTimeout(fallback);
+      r();
+    });
+  });
 export const isPdfFile = (f) => f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
 
 /* Load an image file as an <img>.

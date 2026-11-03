@@ -54,7 +54,18 @@ function canvasToBlob(canvas, type, quality) {
   );
 }
 
-const nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
+/* Yield to the browser so the progress bar can repaint.
+   rAF is suspended in a hidden tab, so a timer takes over there -
+   otherwise a long conversion freezes the moment the user switches
+   away from the tab. */
+const nextFrame = () =>
+  new Promise((r) => {
+    const fallback = setTimeout(r, 100);
+    requestAnimationFrame(() => {
+      clearTimeout(fallback);
+      r();
+    });
+  });
 const isPdfFile = (f) => f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
 
 /* Drop scripts, event handlers and JS URLs from generated HTML
@@ -88,7 +99,15 @@ function setupDropzone(zone, onFiles) {
   zone.addEventListener('drop', (e) => {
     e.preventDefault();
     zone.classList.remove('is-over');
-    if (e.dataTransfer && e.dataTransfer.files.length) onFiles(e.dataTransfer.files);
+    if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+    /* Same contract as onFileInput(): async handlers report through
+       fileError() instead of dying as an unhandled rejection. */
+    try {
+      const out = onFiles(e.dataTransfer.files);
+      if (out && typeof out.catch === 'function') out.catch(fileError);
+    } catch (err) {
+      fileError(err);
+    }
   });
 }
 

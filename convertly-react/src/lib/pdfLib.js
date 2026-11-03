@@ -6,12 +6,7 @@ import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
 
 export { PDFDocument, StandardFonts, rgb, degrees };
 
-/* PDFDocument is statically imported, so this can never fail.
-   Kept because the tool panels call it before opening a PDF. */
-export function libsReady() {
-  return true;
-}
-
+/* Load a PDF, or return null when it is damaged / password protected. */
 export async function openPdfLib(buffer) {
   try {
     return await PDFDocument.load(buffer);

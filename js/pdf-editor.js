@@ -17,7 +17,7 @@
         <button class="btn btn-quiet" id="peNext" type="button" aria-label="Next page">&rsaquo;</button>
       </div>
       <div class="pe-stage" id="peStage">
-        <div class="pe-page" id="pePageBox">
+        <div class="pe-page">
           <canvas id="peCanvas"></canvas>
           <div class="pe-overlay" id="peOverlay"></div>
         </div>
@@ -39,7 +39,7 @@
     remove: $('#peRemove'),
     view: $('#peView'),
     stage: $('#peStage'),
-    pageBox: $('#pePageBox'),
+    drop: $('#peDrop'),
     canvas: $('#peCanvas'),
     overlay: $('#peOverlay'),
     prev: $('#pePrev'),
@@ -421,6 +421,7 @@
 
   /* ---------- Wiring ---------- */
   onFileInput(el.input, choose);
+  setupDropzone(el.drop, choose);
   el.remove.addEventListener('click', reset);
   el.reset.addEventListener('click', reset);
   el.save.addEventListener('click', save);

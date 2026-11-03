@@ -9,7 +9,7 @@ import ReorderList from '../components/ReorderList.jsx';
 import { DzFileArrow } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
 import { formatBytes, downloadBlob, nextFrame, isPdfFile } from '../lib/helpers.js';
-import { PDFDocument, libsReady, openPdfLib } from '../lib/pdfLib.js';
+import { PDFDocument, openPdfLib } from '../lib/pdfLib.js';
 
 export default function MergePdf({ id, hidden }) {
   const toast = useToast();
@@ -21,7 +21,6 @@ export default function MergePdf({ id, hidden }) {
   const [progress, setProgress] = useState({ show: false, percent: 0, text: 'Merging…' });
 
   async function addFiles(fileList) {
-    if (!libsReady(toast)) return;
     const files = [...fileList].filter(isPdfFile);
     if (!files.length) {
       toast('Please choose PDF files.', 'error');
@@ -47,7 +46,10 @@ export default function MergePdf({ id, hidden }) {
     if (failed.length) {
       toast('Could not open (damaged or protected): ' + failed.slice(0, 2).join(', '), 'error');
     }
-    if (added.length) setItems((prev) => [...prev, ...added]);
+    if (added.length) {
+      setItems((prev) => [...prev, ...added]);
+      setProgress((p) => ({ ...p, show: false })); // new files: drop the previous run's bar
+    }
   }
 
   function moveItem(from, to) {
@@ -65,7 +67,7 @@ export default function MergePdf({ id, hidden }) {
   }
 
   async function merge() {
-    if (items.length < 2 || busy || !libsReady(toast)) return;
+    if (items.length < 2 || busy) return;
     setBusy(true);
     setProgress({ show: true, percent: 0, text: 'Starting…' });
 

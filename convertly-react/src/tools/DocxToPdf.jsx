@@ -44,6 +44,7 @@ export default function DocxToPdf({ id, hidden }) {
     setFile(chosen);
     setBlob(null);
     setResultsShow(false);
+    setProgress((p) => ({ ...p, show: false })); // a new file: drop the previous run's bar
   }
 
   async function convert() {

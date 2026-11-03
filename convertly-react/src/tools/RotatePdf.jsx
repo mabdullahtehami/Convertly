@@ -8,7 +8,7 @@ import FileCard from '../components/FileCard.jsx';
 import { DzFileArrow } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
 import { baseName, downloadBlob, isPdfFile } from '../lib/helpers.js';
-import { PDFDocument, degrees, libsReady } from '../lib/pdfLib.js';
+import { PDFDocument, degrees } from '../lib/pdfLib.js';
 
 export default function RotatePdf({ id, hidden }) {
   const toast = useToast();
@@ -34,7 +34,7 @@ export default function RotatePdf({ id, hidden }) {
   }
 
   async function rotate() {
-    if (!file || busy || !libsReady(toast)) return;
+    if (!file || busy) return;
     setBusy(true);
     try {
       const doc = await PDFDocument.load(await file.arrayBuffer());

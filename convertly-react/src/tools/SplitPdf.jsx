@@ -9,7 +9,7 @@ import ProgressBar from '../components/ProgressBar.jsx';
 import { DzFileArrow } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
 import { formatBytes, baseName, downloadBlob, nextFrame, isPdfFile, parseRanges } from '../lib/helpers.js';
-import { PDFDocument, libsReady, openPdfLib } from '../lib/pdfLib.js';
+import { PDFDocument, openPdfLib } from '../lib/pdfLib.js';
 import JSZip from 'jszip';
 
 export default function SplitPdf({ id, hidden }) {
@@ -33,7 +33,6 @@ export default function SplitPdf({ id, hidden }) {
       toast('Please choose a PDF file.', 'error');
       return;
     }
-    if (!libsReady(toast)) return;
     const buf = await chosen.arrayBuffer();
     const doc = await openPdfLib(buf);
     if (!doc) {
@@ -44,6 +43,7 @@ export default function SplitPdf({ id, hidden }) {
     setBuffer(buf);
     setPages(doc.getPageCount());
     setPlaceholder('Example: 1-3, 5 (total ' + doc.getPageCount() + ' pages)');
+    setProgress((p) => ({ ...p, show: false })); // a new file: drop the previous run's bar
   }
 
   function reset() {
@@ -55,7 +55,7 @@ export default function SplitPdf({ id, hidden }) {
   }
 
   async function split() {
-    if (!file || busy || !libsReady(toast)) return;
+    if (!file || busy) return;
     let indices = null;
 
     if (mode === 'extract') {

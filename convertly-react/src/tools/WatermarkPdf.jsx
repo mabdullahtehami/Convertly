@@ -8,7 +8,7 @@ import FileCard from '../components/FileCard.jsx';
 import { DzFileArrow } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
 import { baseName, downloadBlob, isPdfFile } from '../lib/helpers.js';
-import { PDFDocument, StandardFonts, rgb, libsReady } from '../lib/pdfLib.js';
+import { PDFDocument, StandardFonts, rgb } from '../lib/pdfLib.js';
 
 export default function WatermarkPdf({ id, hidden }) {
   const toast = useToast();
@@ -40,7 +40,7 @@ export default function WatermarkPdf({ id, hidden }) {
       toast('Please enter the watermark text.', 'error');
       return;
     }
-    if (!file || busy || !libsReady(toast)) return;
+    if (!file || busy) return;
     setBusy(true);
 
     try {

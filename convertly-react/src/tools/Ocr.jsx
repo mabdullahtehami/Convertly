@@ -98,7 +98,6 @@ export default function Ocr({ id, hidden }) {
       } else {
         const { data } = await worker.recognize(file);
         found.push(data.text.trim());
-        done = 1;
       }
 
       const result = found.join('\n\n').trim();

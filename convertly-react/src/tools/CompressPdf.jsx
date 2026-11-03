@@ -10,7 +10,7 @@ import { DzFileArrow } from '../lib/icons.jsx';
 import { useToast } from '../lib/toast.jsx';
 import { formatBytes, baseName, downloadBlob, canvasToBlob, nextFrame, isPdfFile } from '../lib/helpers.js';
 import { pdfjsLib } from '../lib/pdfjs.js';
-import { PDFDocument, libsReady } from '../lib/pdfLib.js';
+import { PDFDocument } from '../lib/pdfLib.js';
 
 const LEVELS = {
   low: { dpi: 150, quality: 0.85 },
@@ -52,7 +52,7 @@ export default function CompressPdf({ id, hidden }) {
   }
 
   async function compress() {
-    if (!file || busy || !libsReady(toast)) return;
+    if (!file || busy) return;
 
     setBusy(true);
     setResultsShow(false);

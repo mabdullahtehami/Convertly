@@ -1,17 +1,13 @@
 /* ==========================================================
    Convertly React - .dropzone (PDF tool file picker)
    ========================================================== */
-import { useDropzone } from '../hooks/useDropzone.js';
+import { deliverFiles, useDropzone } from '../hooks/useDropzone.js';
 import { useToast } from '../lib/toast.jsx';
 
 export default function Dropzone({ id, accept, multiple = false, onFiles, icon: Icon, title, sub, inputRef }) {
   const toast = useToast();
-  const { isOver, dropProps } = useDropzone(onFiles);
-
-  function fileError(err) {
-    console.error(err);
-    toast('Could not read that file. It may be damaged, moved or locked.', 'error');
-  }
+  const fileError = () => toast('Could not read that file. It may be damaged, moved or locked.', 'error');
+  const { isOver, dropProps } = useDropzone(onFiles, fileError);
 
   return (
     <label className={isOver ? 'dropzone is-over' : 'dropzone'} id={id + 'Drop'} htmlFor={id + 'Input'} {...dropProps}>
@@ -25,12 +21,7 @@ export default function Dropzone({ id, accept, multiple = false, onFiles, icon: 
         onChange={(e) => {
           const files = Array.from(e.target.files || []);
           e.target.value = '';
-          try {
-            const out = onFiles(files);
-            if (out && typeof out.catch === 'function') out.catch(fileError);
-          } catch (err) {
-            fileError(err);
-          }
+          deliverFiles(onFiles, fileError, files);
         }}
       />
       <Icon />
