@@ -23,22 +23,9 @@ const UI = (function () {
     '<path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4"/>' +
     '<path d="M18 23h14M18 29h14M18 35h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>';
 
-  /* ---------- Add a new panel to the page ----------
-     Same registration as MT.addTool (media-ui.js), but the panel
-     keeps the regular .panel markup used by the PDF tools. */
-  function addTool(id, label, html) {
-    /* Clone the type and look of the last existing panel */
-    const panels = $$('[id^="panel-"]');
-    const last = panels[panels.length - 1];
-    const panel = document.createElement(last.tagName.toLowerCase());
-    panel.className = last.className;
-    panel.id = 'panel-' + id;
-    panel.setAttribute('aria-label', label);
-    panel.hidden = true;
-    panel.innerHTML = html;
-    last.after(panel);
-    return panel;
-  }
+  /* ---------- Add a new panel to the page (addPanel lives in common.js) ----------
+     The media tools keep their own .mt markup, the rest of the tools use the
+     regular .panel markup, so this one only registers the panel. */
 
   /* ---------- Small HTML pieces (same markup as index.html) ---------- */
   const dropHtml = (p, accept, icon, title, sub) =>
@@ -84,5 +71,5 @@ const UI = (function () {
     return { mime: 'image/jpeg', ext: 'jpg' };
   }
 
-  return { addTool, dropHtml, cardHtml, progressHtml, loadImage, imageOut, ICON_PDF, ICON_IMG, ICON_LINES };
+  return { addTool: addPanel, dropHtml, cardHtml, progressHtml, loadImage, imageOut, ICON_PDF, ICON_IMG, ICON_LINES };
 })();

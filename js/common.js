@@ -181,3 +181,18 @@ function openPanel(panel) {
   hideAllPanels();
   panel.hidden = false;
 }
+
+/* Register a new tool panel: it clones the type and look of the last one.
+   Used by both helper modules (media-ui.js and tools-ui.js). */
+function addPanel(id, label, html) {
+  const panels = allPanels();
+  const last = panels[panels.length - 1];
+  const panel = document.createElement(last.tagName.toLowerCase());
+  panel.className = last.className;
+  panel.id = 'panel-' + id;
+  panel.setAttribute('aria-label', label);
+  panel.hidden = true;
+  panel.innerHTML = html;
+  last.after(panel);
+  return panel;
+}

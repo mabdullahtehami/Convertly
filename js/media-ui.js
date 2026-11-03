@@ -8,19 +8,7 @@
 
 const MT = (function () {
   /* ---------- Add a new panel to the page ---------- */
-  function addTool(id, label, html) {
-    /* Clone the type and look of the last existing panel */
-    const panels = $$('[id^="panel-"]');
-    const last = panels[panels.length - 1];
-    const panel = document.createElement(last.tagName.toLowerCase());
-    panel.className = last.className;
-    panel.id = 'panel-' + id;
-    panel.setAttribute('aria-label', label);
-    panel.hidden = true;
-    panel.innerHTML = '<div class="mt">' + html + '</div>';
-    last.after(panel);
-    return panel;
-  }
+  const addTool = (id, label, html) => addPanel(id, label, '<div class="mt">' + html + '</div>');
 
   /* ---------- Small HTML pieces ---------- */
   const dropHtml = (p, accept, text) =>
