@@ -9,7 +9,6 @@ Everything runs **right in your browser** — no uploads, no sign-up, no waterma
 - **26 working tools** covering PDF, image, audio, video and everyday utilities
 - **Two implementations** of the same product: plain HTML/CSS/JS and React + Vite
 - **No dependencies to install** for the vanilla version — open `index.html` and it runs
-- **MIT licensed** — free to use, copy, modify and distribute
 
 ## Tools
 
@@ -45,7 +44,6 @@ Convertly/
 │       ├── lib/            # pdf.js / pdf-lib / audio / helpers
 │       └── hooks/
 ├── README.md
-├── LICENSE                 # MIT
 └── .gitignore
 ```
 
@@ -87,6 +85,3 @@ Issues and pull requests are welcome. Keep the two versions in step: a tool adde
 `js/` should also get a component in `convertly-react/src/tools/`, a card in both home
 grids, and a row in the table above.
 
-## License
-
-Released under the [MIT License](LICENSE).
