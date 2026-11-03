@@ -1,5 +1,5 @@
 /* ==========================================================
-   Convertly - shared/tool-icons.js
+   Convertly - js/tool-icons.js
    The 24x24 line icons shown on the home tool grid.
    One source for both versions: index.html loads it as a classic
    script, convertly-react/src/lib/toolIcons.js imports it.

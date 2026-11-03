@@ -2,7 +2,7 @@
    Convertly - home-grid.js
    Builds the iLovePDF-style grid of tool cards from the page's panels.
    Load this file LAST (after every tool file).
-   Styles are in shared/css/home-grid.css (link it in index.html).
+   Styles are in css/home-grid.css (link it in index.html).
    ========================================================== */
 'use strict';
 
@@ -35,7 +35,7 @@
     { title: 'Image Compressor', desc: 'Reduce image size while keeping good quality.', cat: 'image', color: '#0891b2', icon: 'imgComp', badge: true },
     { title: 'Image Converter', desc: 'Convert images between JPG, PNG and WebP.', cat: 'image', color: '#0891b2', icon: 'swap', badge: true },
     { title: 'Image Resizer', desc: 'Change the width and height of any image.', cat: 'image', color: '#0891b2', icon: 'expand', badge: true },
-    { title: 'Rotate Image', desc: 'Turn an image 90Â° or 180Â° in one click.', cat: 'image', color: '#0891b2', icon: 'rotate', badge: true },
+    { title: 'Rotate Image', desc: 'Turn an image 90° or 180° in one click.', cat: 'image', color: '#0891b2', icon: 'rotate', badge: true },
     { title: 'Audio Converter', desc: 'Convert audio files to MP3 or WAV.', cat: 'audio', color: '#7c3aed', icon: 'swap', badge: true },
     { title: 'Screen Recorder', desc: 'Record your screen and save it as a video.', cat: 'video', color: '#db2777', icon: 'screen', badge: true },
     { title: 'QR Code Generator', desc: 'Create a QR code from any text or link.', cat: 'tools', color: '#64748b', icon: 'qr', badge: true },
@@ -73,7 +73,7 @@
       '<div class="hg-chips" role="group" aria-label="Tool categories">' +
         CATS.map((c, i) => '<button type="button" class="hg-chip' + (i === 0 ? ' is-on' : '') + '" data-cat="' + c[0] + '">' + c[1] + '</button>').join('') +
       '</div>' +
-      '<input type="search" class="hg-search" placeholder="Search toolsâ€¦" aria-label="Search tools">' +
+      '<input type="search" class="hg-search" placeholder="Search tools…" aria-label="Search tools">' +
     '</div>' +
     '<div class="hg-grid"></div>' +
     '<p class="hg-empty" hidden>No tools found. Try another word.</p>';

@@ -304,9 +304,14 @@ export default function HomeGrid({ activeIndex, onOpen, onBack }) {
               >
                 {tool.badge ? <span className="hg-new">NEW</span> : null}
                 <span className="hg-icon">
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    {TOOL_ICONS[tool.icon] || TOOL_ICONS.tool}
-                  </svg>
+                  {/* The shared map holds SVG markup strings, so it has to be
+                      injected as HTML - as a child React would render it as
+                      invisible text (fill: none) instead of paths. */}
+                  <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    dangerouslySetInnerHTML={{ __html: TOOL_ICONS[tool.icon] || TOOL_ICONS.tool || '' }}
+                  />
                 </span>
                 <h3 className="hg-title">{tool.title}</h3>
                 <p className="hg-desc">{tool.desc}</p>

@@ -34,9 +34,8 @@ Everything runs **right in your browser** — no uploads, no sign-up, no waterma
 Convertly/
 ├── index.html              # vanilla app (open it directly or serve it)
 ├── js/                     # vanilla app logic — one file per tool
-├── shared/                 # used by BOTH versions, single source of truth
-│   ├── css/                # style.css · home-grid.css · media-tools.css
-│   └── tool-icons.js       # one icon map for the home grid
+│   └── tool-icons.js       # one icon map for the home grid (both versions)
+├── css/                    # style.css · home-grid.css · media-tools.css (both versions)
 ├── convertly-react/        # React + Vite implementation
 │   └── src/
 │       ├── components/     # Dropzone, FileCard, HomeGrid, …
@@ -47,8 +46,8 @@ Convertly/
 └── .gitignore
 ```
 
-Styles and icons live in `shared/` so the two versions can never drift apart —
-change them once and both apps pick it up.
+Styles in `css/` and the home-grid icon map in `js/tool-icons.js` are shared by both
+versions — change them once and both apps pick it up.
 
 ## Getting started
 
