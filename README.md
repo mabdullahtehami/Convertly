@@ -1,7 +1,7 @@
 # Convertly
 
 A free, privacy-first file toolbox with **26 tools** for PDF, images, audio and video.
-Everything runs **right in your browser** — no uploads, no sign-up, no watermarks, no file size limits.
+Everything runs **right in your browser** — no uploads, no sign-up, no watermarks, no account.
 
 ## Features
 
@@ -9,6 +9,12 @@ Everything runs **right in your browser** — no uploads, no sign-up, no waterma
 - **26 working tools** covering PDF, image, audio, video and everyday utilities
 - **Two implementations** of the same product: plain HTML/CSS/JS and React + Vite
 - **No dependencies to install** for the vanilla version — open `index.html` and it runs
+- **One tool list per version** — `js/home-grid.js` (vanilla) and `convertly-react/src/tools/registry.js` (React)
+  each hold the ordered tools, so a card and the panel it opens can never drift apart
+
+The only limits are small per-tool caps (25 MB per DOCX, 30 MB per PDF, 200 MB per media file)
+that keep a single browser tab responsive — there is no server-side upload limit because
+nothing is ever uploaded.
 
 ## Tools
 
@@ -34,14 +40,18 @@ Everything runs **right in your browser** — no uploads, no sign-up, no waterma
 Convertly/
 ├── index.html              # vanilla app (open it directly or serve it)
 ├── js/                     # vanilla app logic — one file per tool
+│   ├── common.js           # shared helpers, dropzones, panel switching (loads first)
+│   ├── home-grid.js        # home screen: cards, category chips, search
+│   ├── media-ui.js         # shared markup + audio helpers for the media tools
+│   ├── tools-ui.js         # shared markup + image helpers for tools 13–26
 │   └── tool-icons.js       # one icon map for the home grid (both versions)
 ├── css/                    # style.css · home-grid.css · media-tools.css (both versions)
 ├── convertly-react/        # React + Vite implementation
 │   └── src/
-│       ├── components/     # Dropzone, FileCard, HomeGrid, …
-│       ├── tools/          # one component per tool
-│       ├── lib/            # pdf.js / pdf-lib / audio / helpers
-│       └── hooks/
+│       ├── components/     # Dropzone, FileCard, HomeGrid, ReorderList, …
+│       ├── tools/          # one component per tool + registry.js (the ordered tool list)
+│       ├── lib/            # pdf.js / pdf-lib / docx / audio / helpers / icons / toast
+│       └── hooks/          # useDropzone + deliverFiles (drag & drop and file input)
 ├── README.md
 └── .gitignore
 ```
@@ -80,7 +90,7 @@ there is no server to upload to.
 
 ## Contributing
 
-Issues and pull requests are welcome. Keep the two versions in step: a tool added to
-`js/` should also get a component in `convertly-react/src/tools/`, a card in both home
-grids, and a row in the table above.
+Issues and pull requests are welcome. Keep the two versions in step: a tool added to `js/`
+should also get a component in `convertly-react/src/tools/`, an entry in
+`convertly-react/src/tools/registry.js`, a card in `js/home-grid.js`, and a row in the table above.
 
