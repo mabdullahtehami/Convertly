@@ -1,12 +1,12 @@
 # Convertly
 
-A free, privacy-first file toolbox with **26 tools** for PDF, images, audio and video.
+A free, privacy-first file toolbox with **27 tools** for PDF, images, audio and video.
 Everything runs **right in your browser** — no uploads, no sign-up, no watermarks, no account.
 
 ## Features
 
 - **100 % client-side** — files never leave the device, there is no backend at all
-- **26 working tools** covering PDF, image, audio, video and everyday utilities
+- **27 working tools** covering PDF, image, audio, video and everyday utilities
 - **Two implementations** of the same product: plain HTML/CSS/JS and React + Vite
 - **No dependencies to install** for the vanilla version — open `index.html` and it runs
 - **One tool list per version** — `js/home-grid.js` (vanilla) and `convertly-react/src/tools/registry.js` (React)
@@ -33,6 +33,7 @@ nothing is ever uploaded.
 | PDF Metadata | Edit title, author, keywords | Screen Recorder | Record your screen |
 | PDF to Text | Pull out the plain text | QR Code Generator | Make a QR code from text |
 | Edit PDF Text | Change the text inside a PDF | Image & PDF OCR | Read text from scans & photos |
+| Prescription Reader | Read a doctor's handwriting with AI | | |
 
 ## Project structure
 
@@ -43,7 +44,7 @@ Convertly/
 │   ├── common.js           # shared helpers, dropzones, panel switching (loads first)
 │   ├── home-grid.js        # home screen: cards, category chips, search
 │   ├── media-ui.js         # shared markup + audio helpers for the media tools
-│   ├── tools-ui.js         # shared markup + image helpers for tools 13–26
+│   ├── tools-ui.js         # shared markup + image helpers for tools 13–27
 │   └── tool-icons.js       # one icon map for the home grid (both versions)
 ├── css/                    # style.css · home-grid.css · media-tools.css (both versions)
 ├── convertly-react/        # React + Vite implementation
@@ -81,12 +82,19 @@ npm run build      # production build in dist/
 ## Tech
 
 pdf.js and pdf-lib (PDF), Tesseract.js (OCR), lamejs (MP3), html2pdf.js / jsPDF (documents),
-Canvas + MediaRecorder (images, video, screen). React version: React 19 + Vite.
+Canvas + MediaRecorder (images, video, screen), Google Gemini vision API (handwritten
+prescription reader — bring your own key). React version: React 19 + Vite.
 
 ## Privacy
 
 Your files never leave your device. All the work happens inside your browser —
 there is no server to upload to.
+
+One exception, only when you use it: the **Prescription Reader** sends the chosen
+prescription image directly to the AI provider you configure (Google Gemini by
+default) using **your own API key**, so the handwriting can be read. Nothing is
+sent until you press *Read prescription*, the key is stored only in this
+browser's localStorage, and every other tool stays fully offline.
 
 ## Contributing
 

@@ -33,6 +33,7 @@ import ScreenRecorder from './ScreenRecorder.jsx';
 import QrCode from './QrCode.jsx';
 import Ocr from './Ocr.jsx';
 import PdfEditor from './PdfEditor.jsx';
+import PrescriptionReader from './PrescriptionReader.jsx';
 
 export const TOOLS = [
   {
@@ -282,5 +283,15 @@ export const TOOLS = [
     icon: 'pencil',
     badge: true,
     Component: PdfEditor,
+  },
+  {
+    id: 'rx',
+    title: 'Prescription Reader',
+    desc: "Read a doctor's handwritten prescription with AI.",
+    cat: 'tools',
+    color: '#64748b',
+    icon: 'rx',
+    badge: true,
+    Component: PrescriptionReader,
   },
 ];

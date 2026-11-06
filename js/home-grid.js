@@ -41,6 +41,7 @@
     { title: 'QR Code Generator', desc: 'Create a QR code from any text or link.', cat: 'tools', color: '#64748b', icon: 'qr', badge: true },
     { title: 'Image & PDF OCR', desc: 'Read the text from scans and photos.', cat: 'tools', color: '#64748b', icon: 'scan', badge: true },
     { title: 'Edit PDF Text', desc: 'Change the text written inside any PDF.', cat: 'organize', color: '#ef4b2b', icon: 'pencil', badge: true },
+    { title: 'Prescription Reader', desc: "Read a doctor's handwritten prescription with AI.", cat: 'tools', color: '#64748b', icon: 'rx', badge: true },
   ];
 
   const CATS = [

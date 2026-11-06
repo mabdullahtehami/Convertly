@@ -203,6 +203,53 @@ input[type="range"] { width: 100%; height: 44px; accent-color: var(--cobalt); cu
 .toast.error { background: var(--danger); }
 .toast.success { background: var(--pine); }
 
+/* Handwritten Prescription Reader */
+input[type="password"] {
+  width: 100%; padding: 12px 14px; border: 1px solid #b9c5d3;
+  border-radius: var(--radius-sm); background: #fff;
+  font: inherit; color: inherit;
+}
+input[type="password"]:hover { border-color: var(--cobalt); }
+.rx-btns { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rx-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.rx-card {
+  margin-top: 16px; padding: 16px 18px; background: #f7f9fc;
+  border: 1px solid var(--line); border-radius: var(--radius-md);
+}
+.rx-grid .rx-card { margin-top: 0; }
+.rx-card h3 {
+  margin: 0 0 10px; font-size: 0.82rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted);
+}
+.rx-count {
+  display: inline-block; min-width: 22px; padding: 1px 7px; border-radius: 999px;
+  background: var(--cobalt-soft); color: var(--cobalt-dark); text-align: center;
+  font-size: 0.78rem; letter-spacing: 0;
+}
+.rx-card dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 0; font-size: 0.95rem; }
+.rx-card dt { color: var(--muted); }
+.rx-card dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+.rx-card ul { margin: 0; padding-left: 18px; font-size: 0.95rem; }
+.rx-card li + li { margin-top: 4px; }
+.rx-none { margin: 0; color: var(--muted); font-size: 0.95rem; }
+.rx-med { padding: 12px 0; border-top: 1px dashed var(--line); }
+.rx-med:first-of-type { border-top: 0; padding-top: 2px; }
+.rx-med-name { font-weight: 700; font-size: 1rem; }
+.rx-med-name span { margin-left: 8px; font-weight: 500; color: var(--muted); }
+.rx-med-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 5px; font-size: 0.9rem; }
+.rx-med-meta b { color: var(--muted); font-weight: 600; }
+.rx-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.rx-chip {
+  padding: 4px 12px; border: 1px solid #e3b7b4; border-radius: 999px;
+  background: #fbe7e5; color: var(--danger); font-size: 0.88rem; font-weight: 600;
+}
+.rx-warn { border-color: #e3b7b4; background: #fdf3f2; }
+.rx-conf { font-size: 0.95rem; font-weight: 700; margin-left: 8px; }
+.rx-conf.good { color: var(--pine); }
+.rx-conf.mid { color: #b45309; }
+.rx-conf.low { color: var(--danger); }
+.rx-card textarea { min-height: 140px; }
+
 /* Footer */
 .foot { text-align: center; padding: 0 24px 28px; color: var(--muted); font-size: 0.88rem; }
 .foot p { margin: 0; }

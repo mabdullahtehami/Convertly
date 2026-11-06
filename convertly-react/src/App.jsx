@@ -1,7 +1,7 @@
 /* ==========================================================
    Convertly React - app shell
    (topbar, hero, tool grid + panels, footer)
-   The 26 tools come from tools/registry.js - one list, so the
+   The 27 tools come from tools/registry.js - one list, so the
    grid card and the panel it opens can never drift apart.
    ========================================================== */
 import { useEffect, useState } from 'react';
