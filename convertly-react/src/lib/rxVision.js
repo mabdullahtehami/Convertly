@@ -13,9 +13,9 @@ const MIN_WIDTH = 1000; /* tiny photos get upscaled first */
 const MAX_PDF_PAGES = 4;
 
 export const PROVIDERS = {
-  gemini: { label: 'Google Gemini (free)', model: 'gemini-2.5-flash' },
+  gemini: { label: 'Google Gemini (free)', model: 'gemini-3.8-flash' },
   openai: { label: 'OpenAI', model: 'gpt-4o-mini' },
-  openrouter: { label: 'OpenRouter', model: 'google/gemini-2.5-flash' },
+  openrouter: { label: 'OpenRouter', model: 'google/gemini-3.8-flash' },
   custom: { label: 'Custom (OpenAI-compatible)', model: '' },
 };
 
@@ -139,7 +139,75 @@ async function httpError(res) {
     429: 'Rate limit reached. Wait a minute and try again.',
   }[res.status];
   const base = friendly || 'The AI service replied with error ' + res.status + '.';
-  return new Error(detail ? base + ' (' + detail + ')' : base);
+  const err = new Error(detail ? base + ' (' + detail + ')' : base);
+  err.status = res.status;
+  return err;
+}
+
+/* Ask the key which models it can really use, so the tool keeps working
+   when Google retires a version (gemini-2.5-flash -> deprecated, etc). */
+export async function listGeminiModels(apiKey) {
+  const res = await post(
+    'https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + encodeURIComponent(apiKey),
+    { method: 'GET' }
+  );
+  if (!res.ok) return null;
+  const json = await res.json();
+  const names = (Array.isArray(json.models) ? json.models : [])
+    .filter(
+      (m) =>
+        m &&
+        Array.isArray(m.supportedGenerationMethods) &&
+        m.supportedGenerationMethods.indexOf('generateContent') !== -1
+    )
+    .map((m) => String(m.name || '').replace(/^models\//, ''))
+    .filter(Boolean);
+  return names.length ? names : null;
+}
+
+const MODEL_NOISE =
+  /preview|experimental|lite|image|tts|live|transcribe|nano|banana|omni|embedding|research|antigravity|robotics|computer|lyria|audio/i;
+const MODEL_VER = (n) => {
+  const m = n.match(/(\d+)\.(\d+)(?:\.(\d+))?/);
+  return m ? [+m[1], +m[2], +(m[3] || 0)] : [0, 0, 0];
+};
+
+export function pickGeminiModel(names) {
+  const all = names.slice().sort(
+    (a, b) =>
+      MODEL_VER(b)[0] - MODEL_VER(a)[0] ||
+      MODEL_VER(b)[1] - MODEL_VER(a)[1] ||
+      MODEL_VER(b)[2] - MODEL_VER(a)[2]
+  );
+  const flash = all.filter((n) => /flash/i.test(n) && !MODEL_NOISE.test(n));
+  if (flash.length) return flash[0];
+  const any = all.filter((n) => !/image|tts|live|transcribe|nano|banana|omni|audio/i.test(n));
+  return any[0] || names[0] || null;
+}
+
+/* Model gone? Pick one the key has and retry once instead of just failing. */
+async function callGeminiAuto(cfg, parts, onModelChange) {
+  try {
+    return await callGemini(cfg, parts);
+  } catch (err) {
+    const status = err && err.status;
+    const modelIssue =
+      status === 404 || (status === 403 && /model/i.test(err.message || '') && !/api key/i.test(err.message || ''));
+    if (!modelIssue) throw err;
+    let names = null;
+    try {
+      names = await listGeminiModels(cfg.apiKey);
+    } catch (e) {
+      /* offline - fall through to the clear error below */
+    }
+    const picked = names ? pickGeminiModel(names) : null;
+    if (!picked || picked === cfg.model) {
+      throw new Error("Model '" + cfg.model + "' is not available on this key. Pick another in the Model field.");
+    }
+    cfg.model = picked;
+    if (onModelChange) onModelChange(picked);
+    return await callGemini(cfg, parts);
+  }
 }
 
 async function callGemini(cfg, parts) {
@@ -204,8 +272,8 @@ async function callOpenAI(cfg, parts) {
 }
 
 /* Provider pick lives with the caller - one entry point here. */
-export async function readPrescription(cfg, parts) {
-  return cfg.provider === 'gemini' ? callGemini(cfg, parts) : callOpenAI(cfg, parts);
+export async function readPrescription(cfg, parts, onModelChange) {
+  return cfg.provider === 'gemini' ? callGeminiAuto(cfg, parts, onModelChange) : callOpenAI(cfg, parts);
 }
 
 /* ==========================================================

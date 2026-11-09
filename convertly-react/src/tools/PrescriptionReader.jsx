@@ -13,6 +13,7 @@ import {
   GEMINI_KEY_URL,
   PROVIDERS,
   fileToParts,
+  listGeminiModels,
   normalize,
   parseAnswer,
   plainText,
@@ -85,6 +86,8 @@ export default function PrescriptionReader({ id, hidden }) {
   const [progress, setProgress] = useState({ show: false, percent: 0, text: '' });
   const [result, setResult] = useState(null);
   const [plain, setPlain] = useState('');
+  const [modelOptions, setModelOptions] = useState([]);
+  const fetchedFor = useRef('');
 
   /* Settings live only in this browser. */
   useEffect(() => {
@@ -94,6 +97,25 @@ export default function PrescriptionReader({ id, hidden }) {
       /* private mode / storage full - settings just do not persist */
     }
   }, [settings]);
+
+  /* Fill the Model dropdown with what this key can really use. */
+  useEffect(() => {
+    const key = settings.apiKey.trim();
+    if (settings.provider !== 'gemini' || !key || fetchedFor.current === key) return;
+    const timer = setTimeout(async () => {
+      let names = null;
+      try {
+        names = await listGeminiModels(key);
+      } catch (e) {
+        return; /* helper only - silent when offline */
+      }
+      if (names && settings.apiKey.trim() === key) {
+        fetchedFor.current = key;
+        setModelOptions(names);
+      }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [settings.provider, settings.apiKey]);
 
   function update(patch) {
     setSettings((s) => {
@@ -151,7 +173,10 @@ export default function PrescriptionReader({ id, hidden }) {
       };
       const parts = await fileToParts(file);
       setProgress({ show: true, percent: 45, text: 'Reading the handwriting with AI…' });
-      const raw = await readPrescription(cfg, parts);
+      const raw = await readPrescription(cfg, parts, (m) => {
+        update({ model: m });
+        setProgress({ show: true, percent: 50, text: 'Model updated to ' + m + ' — reading the handwriting…' });
+      });
       setProgress({ show: true, percent: 85, text: 'Organizing the results…' });
 
       const data = normalize(parseAnswer(raw));
@@ -241,9 +266,15 @@ export default function PrescriptionReader({ id, hidden }) {
             placeholder="model name"
             autoComplete="off"
             spellCheck={false}
+            list="rxModelList"
             value={settings.model}
             onChange={(e) => update({ model: e.target.value })}
           />
+          <datalist id="rxModelList">
+            {modelOptions.map((n) => (
+              <option key={n} value={n} />
+            ))}
+          </datalist>
         </div>
         {settings.provider === 'custom' && (
           <div className="field">

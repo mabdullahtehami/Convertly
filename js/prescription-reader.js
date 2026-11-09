@@ -15,9 +15,9 @@
   const MAX_PDF_PAGES = 4;
 
   const PROVIDERS = {
-    gemini: { label: 'Google Gemini (free)', model: 'gemini-2.5-flash' },
+    gemini: { label: 'Google Gemini (free)', model: 'gemini-3.8-flash' },
     openai: { label: 'OpenAI', model: 'gpt-4o-mini' },
-    openrouter: { label: 'OpenRouter', model: 'google/gemini-2.5-flash' },
+    openrouter: { label: 'OpenRouter', model: 'google/gemini-3.8-flash' },
     custom: { label: 'Custom (OpenAI-compatible)', model: '' },
   };
   const BASE_URLS = {
@@ -46,7 +46,8 @@
       </div>
       <div class="field">
         <label for="rxModel">Model</label>
-        <input type="text" id="rxModel" placeholder="model name" autocomplete="off" spellcheck="false">
+        <input type="text" id="rxModel" placeholder="model name" autocomplete="off" spellcheck="false" list="rxModelList">
+        <datalist id="rxModelList"></datalist>
       </div>
       <div class="field" id="rxBaseField" hidden>
         <label for="rxBase">Base URL (OpenAI-compatible)</label>
@@ -82,6 +83,7 @@
     provider: $('#rxProvider'),
     key: $('#rxKey'),
     model: $('#rxModel'),
+    modelList: $('#rxModelList'),
     baseField: $('#rxBaseField'),
     base: $('#rxBase'),
     keyHint: $('#rxKeyHint'),
@@ -180,6 +182,7 @@ Return ONLY one valid JSON object, no markdown fences, with exactly this schema:
     }
     syncProviderHint();
     saveSettings();
+    refreshModels();
   }
 
   /* ==========================================================
@@ -300,7 +303,75 @@ Return ONLY one valid JSON object, no markdown fences, with exactly this schema:
       429: 'Rate limit reached. Wait a minute and try again.',
     }[res.status];
     const base = friendly || 'The AI service replied with error ' + res.status + '.';
-    return new Error(detail ? base + ' (' + detail + ')' : base);
+    const err = new Error(detail ? base + ' (' + detail + ')' : base);
+    err.status = res.status;
+    return err;
+  }
+
+  /* Ask the key which models it can really use, so the tool keeps working
+     when Google retires a version (gemini-2.5-flash -> deprecated, etc). */
+  async function listGeminiModels(apiKey) {
+    const res = await post(
+      'https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + encodeURIComponent(apiKey),
+      { method: 'GET' }
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    const names = (Array.isArray(json.models) ? json.models : [])
+      .filter(
+        (m) =>
+          m &&
+          Array.isArray(m.supportedGenerationMethods) &&
+          m.supportedGenerationMethods.indexOf('generateContent') !== -1
+      )
+      .map((m) => String(m.name || '').replace(/^models\//, ''))
+      .filter(Boolean);
+    return names.length ? names : null;
+  }
+
+  const MODEL_NOISE =
+    /preview|experimental|lite|image|tts|live|transcribe|nano|banana|omni|embedding|research|antigravity|robotics|computer|lyria|audio/i;
+  const MODEL_VER = (n) => {
+    const m = n.match(/(\d+)\.(\d+)(?:\.(\d+))?/);
+    return m ? [+m[1], +m[2], +(m[3] || 0)] : [0, 0, 0];
+  };
+
+  function pickGeminiModel(names) {
+    const all = names.slice().sort(
+      (a, b) =>
+        MODEL_VER(b)[0] - MODEL_VER(a)[0] ||
+        MODEL_VER(b)[1] - MODEL_VER(a)[1] ||
+        MODEL_VER(b)[2] - MODEL_VER(a)[2]
+    );
+    const flash = all.filter((n) => /flash/i.test(n) && !MODEL_NOISE.test(n));
+    if (flash.length) return flash[0];
+    const any = all.filter((n) => !/image|tts|live|transcribe|nano|banana|omni|audio/i.test(n));
+    return any[0] || names[0] || null;
+  }
+
+  /* Model gone? Pick one the key has and retry once instead of just failing. */
+  async function callGeminiAuto(cfg, parts, onModelChange) {
+    try {
+      return await callGemini(cfg, parts);
+    } catch (err) {
+      const status = err && err.status;
+      const modelIssue =
+        status === 404 || (status === 403 && /model/i.test(err.message || '') && !/api key/i.test(err.message || ''));
+      if (!modelIssue) throw err;
+      let names = null;
+      try {
+        names = await listGeminiModels(cfg.apiKey);
+      } catch (e) {
+        /* offline - fall through to the clear error below */
+      }
+      const picked = names ? pickGeminiModel(names) : null;
+      if (!picked || picked === cfg.model) {
+        throw new Error("Model '" + cfg.model + "' is not available on this key. Pick another in the Model field.");
+      }
+      cfg.model = picked;
+      if (onModelChange) onModelChange(picked);
+      return await callGemini(cfg, parts);
+    }
   }
 
   async function callGemini(cfg, parts) {
@@ -592,7 +663,13 @@ Return ONLY one valid JSON object, no markdown fences, with exactly this schema:
       const parts = await fileToParts(state.file);
       setProgress('rx', 45, 'Reading the handwriting with AI…');
       const raw =
-        cfg.provider === 'gemini' ? await callGemini(cfg, parts) : await callOpenAI(cfg, parts);
+        cfg.provider === 'gemini'
+          ? await callGeminiAuto(cfg, parts, (m) => {
+              el.model.value = m;
+              saveSettings();
+              setProgress('rx', 50, 'Model updated to ' + m + ' — reading the handwriting…');
+            })
+          : await callOpenAI(cfg, parts);
       setProgress('rx', 85, 'Organizing the results…');
 
       const data = normalize(parseAnswer(raw));
@@ -624,9 +701,31 @@ Return ONLY one valid JSON object, no markdown fences, with exactly this schema:
   el.remove.addEventListener('click', reset);
   el.btn.addEventListener('click', convert);
   el.provider.addEventListener('change', onProviderChange);
-  el.key.addEventListener('input', saveSettings);
   el.model.addEventListener('input', saveSettings);
   el.base.addEventListener('input', saveSettings);
+
+  /* Fill the Model dropdown with what this key can really use. */
+  let modelsFor = '';
+  let modelTimer;
+  async function refreshModels() {
+    const key = el.key.value.trim();
+    if (el.provider.value !== 'gemini' || !key || key === modelsFor) return;
+    let names = null;
+    try {
+      names = await listGeminiModels(key);
+    } catch (e) {
+      return; /* helper only - silent when offline */
+    }
+    if (!names || el.key.value.trim() !== key) return;
+    modelsFor = key;
+    el.modelList.innerHTML = names.map((n) => '<option value="' + n + '"></option>').join('');
+  }
+
+  el.key.addEventListener('input', () => {
+    saveSettings();
+    clearTimeout(modelTimer);
+    modelTimer = setTimeout(refreshModels, 800);
+  });
 
   el.download.addEventListener('click', () => {
     if (state.text) {
@@ -649,4 +748,5 @@ Return ONLY one valid JSON object, no markdown fences, with exactly this schema:
   });
 
   loadSettings();
+  refreshModels();
 })();
