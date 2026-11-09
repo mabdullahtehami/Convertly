@@ -15,7 +15,7 @@
   const MAX_PDF_PAGES = 4;
 
   const PROVIDERS = {
-    gemini: { label: 'Google Gemini (free)', model: 'gemini-3.8-flash' },
+    gemini: { label: 'Google Gemini (free)', model: 'gemini-3.6-flash' },
     openai: { label: 'OpenAI', model: 'gpt-4o-mini' },
     openrouter: { label: 'OpenRouter', model: 'google/gemini-3.8-flash' },
     custom: { label: 'Custom (OpenAI-compatible)', model: '' },
@@ -336,42 +336,61 @@ Return ONLY one valid JSON object, no markdown fences, with exactly this schema:
     return m ? [+m[1], +m[2], +(m[3] || 0)] : [0, 0, 0];
   };
 
-  function pickGeminiModel(names) {
+  function pickGeminiModel(names, tried) {
     const all = names.slice().sort(
       (a, b) =>
         MODEL_VER(b)[0] - MODEL_VER(a)[0] ||
         MODEL_VER(b)[1] - MODEL_VER(a)[1] ||
         MODEL_VER(b)[2] - MODEL_VER(a)[2]
     );
+    const fresh = (n) => tried.indexOf(n) === -1;
     const flash = all.filter((n) => /flash/i.test(n) && !MODEL_NOISE.test(n));
-    if (flash.length) return flash[0];
+    const preferred = flash.find((n) => n === PROVIDERS.gemini.model && fresh(n));
+    if (preferred) return preferred;
+    const alt = flash.find(fresh);
+    if (alt) return alt;
     const any = all.filter((n) => !/image|tts|live|transcribe|nano|banana|omni|audio/i.test(n));
-    return any[0] || names[0] || null;
+    return any.find(fresh) || null;
   }
 
-  /* Model gone? Pick one the key has and retry once instead of just failing. */
+  /* Retriable: model retired (404), or temporarily overloaded (5xx / timeout). */
+  function retriableGemini(err) {
+    const s = err && err.status;
+    const m = (err && err.message) || '';
+    return (
+      s === 404 ||
+      s === 500 ||
+      s === 503 ||
+      s === 504 ||
+      (s === 403 && /model/i.test(m) && !/api key/i.test(m)) ||
+      /too long|timed out/i.test(m)
+    );
+  }
+
+  /* Model gone or busy? Ask the key what it has, switch, retry. */
   async function callGeminiAuto(cfg, parts, onModelChange) {
-    try {
-      return await callGemini(cfg, parts);
-    } catch (err) {
-      const status = err && err.status;
-      const modelIssue =
-        status === 404 || (status === 403 && /model/i.test(err.message || '') && !/api key/i.test(err.message || ''));
-      if (!modelIssue) throw err;
-      let names = null;
+    const tried = [];
+    let lastErr = null;
+    for (let i = 0; i < 3; i++) {
+      tried.push(cfg.model);
       try {
-        names = await listGeminiModels(cfg.apiKey);
-      } catch (e) {
-        /* offline - fall through to the clear error below */
+        return await callGemini(cfg, parts);
+      } catch (err) {
+        lastErr = err;
+        if (!retriableGemini(err)) throw err;
+        let names = null;
+        try {
+          names = await listGeminiModels(cfg.apiKey);
+        } catch (e) {
+          /* offline - the raw error below says it all */
+        }
+        const picked = names ? pickGeminiModel(names, tried) : null;
+        if (!picked) throw err;
+        cfg.model = picked;
+        if (onModelChange) onModelChange(picked);
       }
-      const picked = names ? pickGeminiModel(names) : null;
-      if (!picked || picked === cfg.model) {
-        throw new Error("Model '" + cfg.model + "' is not available on this key. Pick another in the Model field.");
-      }
-      cfg.model = picked;
-      if (onModelChange) onModelChange(picked);
-      return await callGemini(cfg, parts);
     }
+    throw lastErr;
   }
 
   async function callGemini(cfg, parts) {
@@ -490,7 +509,8 @@ Return ONLY one valid JSON object, no markdown fences, with exactly this schema:
       tests: arr(d.tests),
       transcription: str(d.transcription),
       uncertain: arr(d.uncertain),
-      confidence: Number.isFinite(conf) ? Math.max(0, Math.min(100, Math.round(conf))) : null,
+      /* models answer confidence either 0-100 or 0-1 */
+      confidence: Number.isFinite(conf) ? Math.max(0, Math.min(100, Math.round(conf <= 1 ? conf * 100 : conf))) : null,
     };
   }
 
