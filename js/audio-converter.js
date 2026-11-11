@@ -5,8 +5,6 @@
 'use strict';
 
 (function () {
-  const MAX_SIZE = 200 * 1024 * 1024; /* 200 MB */
-
   MT.addTool('audioconv', 'Audio Converter', `
     <h2 class="mt-title">Audio Converter</h2>
     <p class="mt-sub">Convert any audio file to MP3 or WAV, entirely in your browser.</p>
@@ -59,7 +57,7 @@
       toast('Please choose an audio file.', 'error');
       return;
     }
-    if (file.size > MAX_SIZE) {
+    if (file.size > MAX_MEDIA_SIZE) {
       toast('Please choose a file smaller than 200 MB.', 'error');
       return;
     }

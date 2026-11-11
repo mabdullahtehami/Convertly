@@ -23,10 +23,6 @@ const UI = (function () {
     '<path d="M29 6v9h9" fill="none" stroke="currentColor" stroke-width="2.4"/>' +
     '<path d="M18 23h14M18 29h14M18 35h9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>';
 
-  /* ---------- Add a new panel to the page (addPanel lives in common.js) ----------
-     The media tools keep their own .mt markup, the rest of the tools use the
-     regular .panel markup, so this one only registers the panel. */
-
   /* ---------- Small HTML pieces (same markup as index.html) ---------- */
   const dropHtml = (p, accept, icon, title, sub) =>
     '<label class="dropzone" id="' + p + 'Drop" for="' + p + 'Input">' +

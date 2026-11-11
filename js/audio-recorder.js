@@ -34,11 +34,6 @@
   };
   const state = { recorder: null, stream: null, chunks: [], blob: null, url: null, timer: 0, startedAt: 0, busy: false };
 
-  const fmt = (ms) => {
-    const s = Math.floor(ms / 1000);
-    return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-  };
-
   function extFor(type) {
     if (/ogg/.test(type)) return 'ogg';
     if (/mp4|aac/.test(type)) return 'm4a';
@@ -90,7 +85,7 @@
     recorder.start();
     state.startedAt = Date.now();
     el.time.textContent = '0:00';
-    state.timer = setInterval(() => (el.time.textContent = fmt(Date.now() - state.startedAt)), 250);
+    state.timer = setInterval(() => (el.time.textContent = formatClock(Date.now() - state.startedAt)), 250);
     el.start.disabled = true;
     el.stop.disabled = false;
   }

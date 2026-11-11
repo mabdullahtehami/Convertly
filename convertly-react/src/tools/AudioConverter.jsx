@@ -7,10 +7,8 @@ import MediaDrop from '../components/MediaDrop.jsx';
 import MtCard from '../components/MtCard.jsx';
 import MtProgress from '../components/MtProgress.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { formatBytes, baseName, downloadBlob } from '../lib/helpers.js';
+import { formatBytes, baseName, downloadBlob, MAX_MEDIA_SIZE } from '../lib/helpers.js';
 import { decodeAudio, encodeMp3, encodeWav, ensureLame } from '../lib/audio.js';
-
-const MAX_SIZE = 200 * 1024 * 1024; /* 200 MB */
 
 const isAudio = (f) => f.type.startsWith('audio/') || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(f.name);
 
@@ -34,7 +32,7 @@ export default function AudioConverter({ id, hidden }) {
       toast('Please choose an audio file.', 'error');
       return;
     }
-    if (chosen.size > MAX_SIZE) {
+    if (chosen.size > MAX_MEDIA_SIZE) {
       toast('Please choose a file smaller than 200 MB.', 'error');
       return;
     }

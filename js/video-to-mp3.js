@@ -5,8 +5,6 @@
 'use strict';
 
 (function () {
-  const MAX_SIZE = 200 * 1024 * 1024; /* 200 MB */
-
   MT.addTool('mp3', 'Video to MP3', `
     <h2 class="mt-title">Video / Audio to MP3</h2>
     <p class="mt-sub">Take the sound out of a video (MP4, WebM, MOV) or convert an audio file to MP3.</p>
@@ -55,7 +53,7 @@
       toast('Please choose a video or audio file.', 'error');
       return;
     }
-    if (file.size > MAX_SIZE) {
+    if (file.size > MAX_MEDIA_SIZE) {
       toast('Please choose a file smaller than 200 MB.', 'error');
       return;
     }

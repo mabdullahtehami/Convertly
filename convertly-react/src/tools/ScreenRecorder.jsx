@@ -5,12 +5,7 @@
    ========================================================== */
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from '../lib/toast.jsx';
-import { downloadBlob } from '../lib/helpers.js';
-
-const fmt = (ms) => {
-  const s = Math.floor(ms / 1000);
-  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-};
+import { downloadBlob, formatClock } from '../lib/helpers.js';
 
 const extFor = (type) => (type.includes('mp4') ? 'mp4' : 'webm');
 
@@ -107,7 +102,7 @@ export default function ScreenRecorder({ id, hidden }) {
       recorder.start();
       startedAtRef.current = Date.now();
       setTime('0:00');
-      timerRef.current = setInterval(() => setTime(fmt(Date.now() - startedAtRef.current)), 250);
+      timerRef.current = setInterval(() => setTime(formatClock(Date.now() - startedAtRef.current)), 250);
       setRecording(true);
     } catch (err) {
       console.error(err);

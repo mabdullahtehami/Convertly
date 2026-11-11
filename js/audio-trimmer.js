@@ -5,8 +5,6 @@
 'use strict';
 
 (function () {
-  const MAX_SIZE = 200 * 1024 * 1024; /* 200 MB */
-
   MT.addTool('trim', 'Audio Trimmer', `
     <h2 class="mt-title">Audio Trimmer</h2>
     <p class="mt-sub">Cut the part you want from an audio file (or the audio of a video). Save as MP3 or WAV.</p>
@@ -72,7 +70,7 @@
       toast('Please choose an audio or video file.', 'error');
       return;
     }
-    if (file.size > MAX_SIZE) {
+    if (file.size > MAX_MEDIA_SIZE) {
       toast('Please choose a file smaller than 200 MB.', 'error');
       return;
     }

@@ -6,13 +6,8 @@
 import { useEffect, useRef, useState } from 'react';
 import MtProgress from '../components/MtProgress.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { downloadBlob } from '../lib/helpers.js';
+import { downloadBlob, formatClock } from '../lib/helpers.js';
 import { decodeAudio, encodeMp3, ensureLame } from '../lib/audio.js';
-
-const fmt = (ms) => {
-  const s = Math.floor(ms / 1000);
-  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-};
 
 function extFor(type) {
   if (/ogg/.test(type)) return 'ogg';
@@ -100,7 +95,7 @@ export default function AudioRecorder({ id, hidden }) {
       recorder.start();
       startedAtRef.current = Date.now();
       setTime('0:00');
-      timerRef.current = setInterval(() => setTime(fmt(Date.now() - startedAtRef.current)), 250);
+      timerRef.current = setInterval(() => setTime(formatClock(Date.now() - startedAtRef.current)), 250);
       setRecording(true);
     } catch (err) {
       console.error(err);

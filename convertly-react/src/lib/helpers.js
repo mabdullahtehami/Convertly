@@ -13,6 +13,14 @@ export function baseName(filename) {
   return filename.replace(/\.[^.]+$/, '') || 'file';
 }
 
+export const MAX_MEDIA_SIZE = 200 * 1024 * 1024; /* 200 MB cap for audio/video files */
+
+/* Recorder clock: elapsed ms -> 0:07, 1:05 */
+export function formatClock(ms) {
+  const s = Math.floor(ms / 1000);
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+}
+
 export function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

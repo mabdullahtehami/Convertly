@@ -58,7 +58,6 @@ export default function ReorderList({
           <li
             key={item.id}
             className={classes.join(' ')}
-            data-id={item.id}
             draggable={draggable}
             onDragStart={(e) => handleDragStart(e, item)}
             onDragOver={(e) => handleDragOver(e, item)}

@@ -7,10 +7,8 @@ import MediaDrop from '../components/MediaDrop.jsx';
 import MtCard from '../components/MtCard.jsx';
 import MtProgress from '../components/MtProgress.jsx';
 import { useToast } from '../lib/toast.jsx';
-import { formatBytes, baseName, downloadBlob, nextFrame } from '../lib/helpers.js';
+import { formatBytes, baseName, downloadBlob, nextFrame, MAX_MEDIA_SIZE } from '../lib/helpers.js';
 import { decodeAudio, encodeMp3, ensureLame } from '../lib/audio.js';
-
-const MAX_SIZE = 200 * 1024 * 1024; /* 200 MB */
 
 const isMedia = (f) =>
   f.type.startsWith('video/') ||
@@ -36,7 +34,7 @@ export default function VideoToMp3({ id, hidden }) {
       toast('Please choose a video or audio file.', 'error');
       return;
     }
-    if (chosen.size > MAX_SIZE) {
+    if (chosen.size > MAX_MEDIA_SIZE) {
       toast('Please choose a file smaller than 200 MB.', 'error');
       return;
     }
