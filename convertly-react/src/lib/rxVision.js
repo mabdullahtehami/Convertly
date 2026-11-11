@@ -13,7 +13,9 @@ const MIN_WIDTH = 1000; /* tiny photos get upscaled first */
 const MAX_PDF_PAGES = 4;
 
 export const PROVIDERS = {
-  gemini: { label: 'Google Gemini (free)', model: 'gemini-3.6-flash' },
+  /* gemini-3.5-flash is the one every free AI Studio key can call -
+     the pre-flight check below still corrects it if a key disagrees. */
+  gemini: { label: 'Google Gemini (free)', model: 'gemini-3.5-flash' },
   openai: { label: 'OpenAI', model: 'gpt-4o-mini' },
   openrouter: { label: 'OpenRouter', model: 'google/gemini-3.8-flash' },
   custom: { label: 'Custom (OpenAI-compatible)', model: '' },
@@ -27,19 +29,35 @@ const BASE_URLS = {
 /* ==========================================================
    Prompt - the quality of the whole tool lives here
    ========================================================== */
-export const PROMPT = `You are an expert medical transcriptionist reading a doctor's handwritten prescription.
+/* The quality of the whole tool lives in this prompt. */
+const PROMPT = `You are an expert medical transcriptionist reading a doctor's handwritten prescription.
+Read the attached prescription image(s) exactly like a pharmacist checking the paper before dispensing.
 
-Read the attached prescription image(s) carefully, exactly like a pharmacist would.
-Doctor handwriting can be messy, cursive, fast and heavily abbreviated - use medical
-context (drug names, doses, frequencies, diagnoses) to work out ambiguous letters.
+Reading order:
+- Printed letterhead first (doctor name, qualifications, clinic, phone), then the handwritten body:
+  date, patient line (name, age/sex), the Rx symbol, complaints/diagnosis, medicine lines,
+  advice/tests, then the signature.
+- Read every line. Messy, cursive, fast handwriting with heavy abbreviation is normal - use medical
+  context (drug names, doses, frequencies, diagnoses) to work out ambiguous letters.
 
 Rules:
 1. Transcribe only what is actually written. Never invent medicines or details that are not on the paper.
-2. If a word or dose cannot be read with confidence, write "?" in that field and list the word in "uncertain".
-3. Keep abbreviations as written (Tab., Cap., Inj., Syp., OD, BD, TDS, QDS, HS, PRN) but state the plain meaning in "frequency", e.g. "BD - twice daily".
-4. Medicine names must be standard English spelling (e.g. paracetamol, amoxicillin, omeprazole). The rest may be English or Roman Urdu - transcribe whichever language is used.
-5. Include date, patient name/age/sex, and doctor name/qualification/clinic when they are present.
-6. Give every medicine its own entry with strength, dose ("1 tablet"), frequency, duration ("5 days") and extra instructions ("after meals").
+2. One written medicine line = one entry in "medicines", kept in top-to-bottom order. Never merge two
+   lines into one medicine and never split one line into two.
+3. If a word or dose cannot be read with confidence, write "?" in that field and add the word to "uncertain".
+4. Keep abbreviations exactly as written (Tab., Cap., Inj., Syp., Dr., OD, BD, TDS, QDS, HS, PRN, STAT,
+   SOS, s.o.s, u.s.f.) but expand the meaning in "frequency", e.g. "BD - twice daily",
+   "TDS - three times daily", "HS - at bedtime", "PRN - as needed", "STAT - immediately",
+   "SOS - if required", "OD - once daily".
+5. Medicine names must be standard English spelling (e.g. paracetamol, amoxicillin, omeprazole).
+   Strength exactly as written ("500 mg", "0.25 mg", "10 ml"). The rest may be English or Roman Urdu -
+   transcribe whichever language is used; for "instructions" add the English meaning in parentheses,
+   e.g. "khana khany k baad (after meals)".
+6. Include the date, patient name/age/sex (split "30/M" into age "30", gender "Male"), and doctor
+   name/qualification/clinic/phone when they are present.
+7. Give every medicine its own entry with strength, dose ("1 tablet"), frequency, duration
+   ("5 days") and extra instructions ("after meals").
+8. Lines you truly cannot decipher still belong in the transcription text - never silently drop them.
 
 Return ONLY one valid JSON object, no markdown fences, with exactly this schema:
 {
@@ -57,12 +75,107 @@ Return ONLY one valid JSON object, no markdown fences, with exactly this schema:
 }
 "confidence" is your overall readability score from 0 to 100.`;
 
+/* Structured output: the API validates the shape for us, so the answer
+   always parses. Falls back to plain JSON mode on models that
+   do not support responseSchema (see callGemini). */
+const STR = { type: 'STRING' };
+const RESPONSE_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    doctor: {
+      type: 'OBJECT',
+      properties: { name: STR, qualification: STR, clinic: STR, phone: STR },
+      required: ['name', 'qualification', 'clinic', 'phone'],
+    },
+    patient: {
+      type: 'OBJECT',
+      properties: { name: STR, age: STR, gender: STR, date: STR },
+      required: ['name', 'age', 'gender', 'date'],
+    },
+    diagnosis: { type: 'ARRAY', items: STR },
+    medicines: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: { name: STR, strength: STR, dose: STR, frequency: STR, duration: STR, instructions: STR },
+        required: ['name', 'strength', 'dose', 'frequency', 'duration', 'instructions'],
+      },
+    },
+    advice: { type: 'ARRAY', items: STR },
+    tests: { type: 'ARRAY', items: STR },
+    transcription: STR,
+    uncertain: { type: 'ARRAY', items: STR },
+    confidence: { type: 'NUMBER' },
+  },
+  required: ['doctor', 'patient', 'diagnosis', 'medicines', 'advice', 'tests', 'transcription', 'uncertain', 'confidence'],
+};
+
 /* ==========================================================
    Image prep - normalise every input to a JPEG the AI can read
    ========================================================== */
 function canvasPart(canvas) {
-  const url = canvas.toDataURL('image/jpeg', 0.92);
+  const url = canvas.toDataURL('image/jpeg', 0.95);
   return { mime: 'image/jpeg', data: url.slice(url.indexOf(',') + 1) };
+}
+
+/* Faded phone photos and light scans keep the handwriting inside a
+   narrow grey band - stretch that band back so the AI sees real
+   contrast. Never blocks the read if the canvas says no. */
+function enhance(canvas) {
+  const ctx = canvas.getContext('2d');
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = img.data;
+  const hist = new Uint32Array(256);
+  let samples = 0;
+  for (let i = 0; i < d.length; i += 16) {
+    const lum = Math.min(255, ((d[i] * 299 + d[i + 1] * 587 + d[i + 2] * 114) / 1000) | 0);
+    hist[lum]++;
+    samples++;
+  }
+  /* bins holding at least 0.05% of the pixels = real content, not noise */
+  const minCount = Math.max(1, Math.ceil(samples * 0.0005));
+  let lo = 0;
+  let hi = 255;
+  for (let v = 0; v < 256; v++) {
+    if (hist[v] >= minCount) {
+      lo = v;
+      break;
+    }
+  }
+  for (let v = 255; v >= 0; v--) {
+    if (hist[v] >= minCount) {
+      hi = v;
+      break;
+    }
+  }
+  const range = hi - lo;
+  const lut = new Uint8Array(256);
+  if (range > 0 && range < 160) {
+    const gain = 255 / range; /* flat input -> stretch to full black..white */
+    for (let v = 0; v < 256; v++) {
+      const x = (v - lo) * gain;
+      lut[v] = x < 0 ? 0 : x > 255 ? 255 : x;
+    }
+  } else {
+    for (let v = 0; v < 256; v++) {
+      const x = (v - 128) * 1.07 + 128; /* healthy input -> a touch of contrast */
+      lut[v] = x < 0 ? 0 : x > 255 ? 255 : x;
+    }
+  }
+  for (let i = 0; i < d.length; i += 4) {
+    d[i] = lut[d[i]];
+    d[i + 1] = lut[d[i + 1]];
+    d[i + 2] = lut[d[i + 2]];
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+function safeEnhance(canvas) {
+  try {
+    enhance(canvas);
+  } catch (e) {
+    /* enhancement is a bonus - the read must go on without it */
+  }
 }
 
 export async function fileToParts(file) {
@@ -81,6 +194,7 @@ export async function fileToParts(file) {
         canvas.height = viewport.height;
         await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
         page.cleanup();
+        safeEnhance(canvas);
         parts.push(canvasPart(canvas));
         canvas.width = canvas.height = 0; /* give the memory back */
       }
@@ -102,6 +216,7 @@ export async function fileToParts(file) {
   canvas.width = Math.max(1, Math.round(w * scale));
   canvas.height = Math.max(1, Math.round(h * scale));
   canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  safeEnhance(canvas);
   parts.push(canvasPart(canvas));
   canvas.width = canvas.height = 0;
   return parts;
@@ -110,16 +225,47 @@ export async function fileToParts(file) {
 /* ==========================================================
    AI calls
    ========================================================== */
-async function post(url, options) {
+const LIST_TIMEOUT = 15000; /* model list - keep it snappy */
+const ATTEMPT_TIMEOUT = 70000; /* one generateContent call */
+const DEADLINE = 135000; /* whole read, all retries together */
+
+let activeCtl = null;
+let rxCancelled = false;
+
+/* The Read button turns into Cancel while a request is in flight. */
+export function cancelRx() {
+  rxCancelled = true;
+  if (activeCtl) activeCtl.abort();
+}
+export function resetRxCancel() {
+  rxCancelled = false;
+}
+
+function rxError(kind) {
+  const msg =
+    kind === 'cancelled'
+      ? 'Cancelled.'
+      : kind === 'timeout'
+        ? 'The AI took too long to answer. Try again.'
+        : 'Could not reach the AI service. Check your internet connection.';
+  const e = new Error(msg);
+  e.kind = kind;
+  return e;
+}
+
+async function post(url, options, timeoutMs) {
   const ctl = new AbortController();
-  const timer = setTimeout(() => ctl.abort(), 120000);
+  activeCtl = ctl;
+  const timer = setTimeout(() => ctl.abort(), timeoutMs || ATTEMPT_TIMEOUT);
   try {
     return await fetch(url, Object.assign({}, options, { signal: ctl.signal }));
   } catch (err) {
-    if (err && err.name === 'AbortError') throw new Error('The AI took too long to answer. Try again.');
-    throw new Error('Could not reach the AI service. Check your internet connection.');
+    if (rxCancelled) throw rxError('cancelled');
+    if (err && err.name === 'AbortError') throw rxError('timeout');
+    throw rxError('net');
   } finally {
     clearTimeout(timer);
+    if (activeCtl === ctl) activeCtl = null;
   }
 }
 
@@ -149,7 +295,8 @@ async function httpError(res) {
 export async function listGeminiModels(apiKey) {
   const res = await post(
     'https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + encodeURIComponent(apiKey),
-    { method: 'GET' }
+    { method: 'GET' },
+    LIST_TIMEOUT
   );
   if (!res.ok) return null;
   const json = await res.json();
@@ -165,6 +312,35 @@ export async function listGeminiModels(apiKey) {
   return names.length ? names : null;
 }
 
+/* Cached for 5 minutes so a read never pays for the same list twice. */
+let listCache = { key: '', names: null, at: 0 };
+async function fetchGeminiList(apiKey) {
+  const now = Date.now();
+  if (listCache.key === apiKey && listCache.names && now - listCache.at < 300000) return listCache.names;
+  const names = await listGeminiModels(apiKey);
+  if (names) listCache = { key: apiKey, names: names, at: now };
+  return names;
+}
+
+/* Pre-flight: confirm the model exists on this key BEFORE the photo is
+   sent, so nothing changes half-way through a request. */
+export async function resolveGeminiModel(cfg, onStatus) {
+  let names = null;
+  try {
+    names = await fetchGeminiList(cfg.apiKey);
+  } catch (e) {
+    if (e && e.kind === 'cancelled') throw e;
+    return cfg.model; /* offline - the call itself will decide */
+  }
+  if (!names || names.indexOf(cfg.model) !== -1) return cfg.model;
+  const picked = pickGeminiModel(names, []);
+  if (picked && picked !== cfg.model) {
+    cfg.model = picked;
+    if (onStatus) onStatus(picked);
+  }
+  return cfg.model;
+}
+
 const MODEL_NOISE =
   /preview|experimental|lite|image|tts|live|transcribe|nano|banana|omni|embedding|research|antigravity|robotics|computer|lyria|audio/i;
 const MODEL_VER = (n) => {
@@ -172,7 +348,7 @@ const MODEL_VER = (n) => {
   return m ? [+m[1], +m[2], +(m[3] || 0)] : [0, 0, 0];
 };
 
-export function pickGeminiModel(names, tried) {
+function pickGeminiModel(names, tried) {
   const all = names.slice().sort(
     (a, b) =>
       MODEL_VER(b)[0] - MODEL_VER(a)[0] ||
@@ -189,68 +365,103 @@ export function pickGeminiModel(names, tried) {
   return any.find(fresh) || null;
 }
 
-/* Retriable: model retired (404), or temporarily overloaded (5xx / timeout). */
-function retriableGemini(err) {
+/* What to do when a Gemini call fails:
+   switch  - model retired or not accessible on this key -> pick another
+   retry   - transient (5xx / timeout / network) -> try the same one again
+   fatal   - key, quota or request problem -> tell the user right away */
+function classifyGemini(err) {
+  if (err && err.kind === 'cancelled') return 'fatal';
+  if (err && (err.kind === 'timeout' || err.kind === 'net')) return 'retry';
   const s = err && err.status;
-  const m = (err && err.message) || '';
-  return (
-    s === 404 ||
-    s === 500 ||
-    s === 503 ||
-    s === 504 ||
-    (s === 403 && /model/i.test(m) && !/api key/i.test(m)) ||
-    /too long|timed out/i.test(m)
-  );
+  if (s === 404) return 'switch';
+  if (s === 403 && /model/i.test((err && err.message) || '')) return 'switch';
+  if (s === 500 || s === 503 || s === 504) return 'retry';
+  return 'fatal';
 }
 
-/* Model gone or busy? Ask the key what it has, switch, retry. */
-async function callGeminiAuto(cfg, parts, onModelChange) {
+/* Model gone or busy? Ask the key what it has, switch, retry - but a
+   timeout is NOT a model problem, so it never triggers a model hunt,
+   and everything is capped by one hard deadline so the progress bar
+   can never hang for minutes. */
+async function callGeminiAuto(cfg, parts, onStatus) {
+  const budget = Date.now() + DEADLINE;
   const tried = [];
+  let retriedSame = 0;
   let lastErr = null;
-  for (let i = 0; i < 3; i++) {
+  for (;;) {
+    if (rxCancelled) throw rxError('cancelled');
+    const left = budget - Date.now();
+    if (left < 20000) break;
     tried.push(cfg.model);
+    /* first attempt only - after a switch/retry the status above already
+       explains what is happening, so it must not be overwritten */
+    if (tried.length === 1 && onStatus) onStatus('Reading with ' + cfg.model + '…');
     try {
-      return await callGemini(cfg, parts);
+      return await callGemini(cfg, parts, Math.min(ATTEMPT_TIMEOUT, left));
     } catch (err) {
       lastErr = err;
-      if (!retriableGemini(err)) throw err;
-      let names = null;
-      try {
-        names = await listGeminiModels(cfg.apiKey);
-      } catch (e) {
-        /* offline - the raw error below says it all */
+      if (err && err.kind === 'cancelled') throw err;
+      const how = classifyGemini(err);
+      if (how === 'switch' && tried.length < 3) {
+        let names = null;
+        try {
+          names = await fetchGeminiList(cfg.apiKey);
+        } catch (e) {
+          if (e && e.kind === 'cancelled') throw e;
+          /* offline - the original error below says it all */
+        }
+        const picked = names ? pickGeminiModel(names, tried) : null;
+        if (!picked) throw err;
+        cfg.model = picked;
+        if (onStatus) onStatus('Model updated to ' + picked + ' - your key can use it. Reading…');
+        continue;
       }
-      const picked = names ? pickGeminiModel(names, tried) : null;
-      if (!picked) throw err;
-      cfg.model = picked;
-      if (onModelChange) onModelChange(picked);
+      if (how === 'retry' && retriedSame < 1 && tried.length < 3) {
+        retriedSame++;
+        if (onStatus) onStatus('The AI was slow - trying again with ' + cfg.model + '…');
+        continue;
+      }
+      throw err;
     }
   }
-  throw lastErr;
+  throw lastErr || rxError('timeout');
 }
 
-async function callGemini(cfg, parts) {
+async function callGemini(cfg, parts, timeoutMs) {
   const url =
     'https://generativelanguage.googleapis.com/v1beta/models/' +
     encodeURIComponent(cfg.model) +
     ':generateContent?key=' +
     encodeURIComponent(cfg.apiKey);
-  const body = {
-    contents: [
-      {
-        role: 'user',
-        parts: [{ text: PROMPT }].concat(
-          parts.map((p) => ({ inline_data: { mime_type: p.mime, data: p.data } }))
-        ),
-      },
-    ],
-    generationConfig: { temperature: 0.15, responseMimeType: 'application/json' },
+  const contents = [
+    {
+      role: 'user',
+      parts: [{ text: PROMPT }].concat(
+        parts.map((p) => ({ inline_data: { mime_type: p.mime, data: p.data } }))
+      ),
+    },
+  ];
+  const buildBody = (withSchema) => {
+    const generationConfig = { temperature: 0.15, responseMimeType: 'application/json' };
+    if (withSchema) generationConfig.responseSchema = RESPONSE_SCHEMA;
+    return { contents: contents, generationConfig: generationConfig };
   };
-  const res = await post(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  const send = (withSchema) =>
+    post(
+      url,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildBody(withSchema)),
+      },
+      timeoutMs
+    );
+
+  let res = await send(true);
+  if (res.status === 400) {
+    /* some models reject responseSchema - plain JSON mode instead */
+    res = await send(false);
+  }
   if (!res.ok) throw await httpError(res);
 
   const json = await res.json();
@@ -291,8 +502,8 @@ async function callOpenAI(cfg, parts) {
 }
 
 /* Provider pick lives with the caller - one entry point here. */
-export async function readPrescription(cfg, parts, onModelChange) {
-  return cfg.provider === 'gemini' ? callGeminiAuto(cfg, parts, onModelChange) : callOpenAI(cfg, parts);
+export async function readPrescription(cfg, parts, onStatus) {
+  return cfg.provider === 'gemini' ? callGeminiAuto(cfg, parts, onStatus) : callOpenAI(cfg, parts);
 }
 
 /* ==========================================================

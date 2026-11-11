@@ -12,12 +12,15 @@ import { baseName, downloadBlob, isPdfFile } from '../lib/helpers.js';
 import {
   GEMINI_KEY_URL,
   PROVIDERS,
+  cancelRx,
   fileToParts,
   listGeminiModels,
   normalize,
   parseAnswer,
   plainText,
   readPrescription,
+  resetRxCancel,
+  resolveGeminiModel,
 } from '../lib/rxVision.js';
 
 const SETTINGS_KEY = 'convertly.rx.settings';
@@ -88,6 +91,20 @@ export default function PrescriptionReader({ id, hidden }) {
   const [plain, setPlain] = useState('');
   const [modelOptions, setModelOptions] = useState([]);
   const fetchedFor = useRef('');
+  const tickRef = useRef({ from: 0, base: '', percent: 0 });
+  const tickTimerRef = useRef(null);
+
+  /* Live elapsed time under the bar - a slow free-tier call must never
+     look frozen. */
+  function show(percent, text) {
+    const t = tickRef.current;
+    if (percent != null) t.percent = percent;
+    if (text != null) t.base = text;
+    const tail = t.from ? ' · ' + Math.max(0, Math.round((Date.now() - t.from) / 1000)) + 's' : '';
+    setProgress({ show: true, percent: t.percent, text: t.base + tail });
+  }
+
+  useEffect(() => () => clearInterval(tickTimerRef.current), []);
 
   /* Settings live only in this browser. */
   useEffect(() => {
@@ -162,7 +179,11 @@ export default function PrescriptionReader({ id, hidden }) {
 
     setBusy(true);
     setResult(null);
-    setProgress({ show: true, percent: 12, text: 'Preparing the prescription image…' });
+    resetRxCancel();
+    tickRef.current = { from: Date.now(), base: '', percent: 0 };
+    show(8, 'Preparing the prescription image…');
+    clearInterval(tickTimerRef.current);
+    tickTimerRef.current = setInterval(() => show(), 1000);
 
     try {
       const cfg = {
@@ -172,26 +193,36 @@ export default function PrescriptionReader({ id, hidden }) {
         baseUrl: settings.baseUrl.trim(),
       };
       const parts = await fileToParts(file);
-      setProgress({ show: true, percent: 45, text: 'Reading the handwriting with AI…' });
-      const raw = await readPrescription(cfg, parts, (m) => {
-        update({ model: m });
-        setProgress({ show: true, percent: 50, text: 'Model updated to ' + m + ' — reading the handwriting…' });
-      });
-      setProgress({ show: true, percent: 85, text: 'Organizing the results…' });
+
+      if (cfg.provider === 'gemini') {
+        show(25, 'Checking which model your key can use…');
+        await resolveGeminiModel(cfg, (m) => {
+          update({ model: m });
+          show(30, m + ' selected for your key - reading the handwriting…');
+        });
+      }
+      show(45, 'Reading the handwriting with ' + cfg.model + '…');
+      const raw = await readPrescription(cfg, parts, (t) => show(50, t));
+      show(85, 'Organizing the results…');
 
       const data = normalize(parseAnswer(raw));
       if (!data.transcription && !data.medicines.length && !data.patient.name && !data.doctor.name) {
         throw new Error('Nothing readable was found on this image. Try a clearer photo.');
       }
+      if (cfg.model && cfg.model !== settings.model) update({ model: cfg.model }); /* remember what worked */
       setResult(data);
       setPlain(plainText(data));
-      setProgress({ show: true, percent: 100, text: 'Done.' });
+      show(100, 'Done.');
       toast('Prescription read.', 'success');
     } catch (err) {
       console.error(err);
       setProgress({ show: false, percent: 0, text: '' });
-      toast(err && err.message ? err.message : 'Could not read this prescription.', 'error');
+      if (err && err.kind === 'cancelled') toast('Cancelled.');
+      else toast(err && err.message ? err.message : 'Could not read this prescription.', 'error');
     } finally {
+      clearInterval(tickTimerRef.current);
+      tickTimerRef.current = null;
+      tickRef.current.from = 0;
       setBusy(false);
     }
   }
@@ -307,8 +338,14 @@ export default function PrescriptionReader({ id, hidden }) {
       </p>
 
       <div className="actions">
-        <button className="btn btn-primary" id="rxBtn" type="button" disabled={busy || !file} onClick={convert}>
-          {busy ? 'Reading…' : 'Read prescription'}
+        <button
+          className="btn btn-primary"
+          id="rxBtn"
+          type="button"
+          disabled={busy ? false : !file}
+          onClick={() => (busy ? cancelRx() : convert())}
+        >
+          {busy ? 'Cancel reading…' : 'Read prescription'}
         </button>
       </div>
 
