@@ -1,0 +1,7 @@
+# https://YOURDOMAIN.com/robots.txt
+User-agent: *
+Allow: /
+
+# AdSense review requirement: ads.txt goes here once the account exists.
+# Sitemap
+Sitemap: https://YOURDOMAIN.com/sitemap.xml

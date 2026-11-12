@@ -1,0 +1,3 @@
+# SPA fallback: every URL serves index.html so React Router can
+# resolve the route on static hosts (Netlify, Cloudflare Pages...).
+/*    /index.html   200

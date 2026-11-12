@@ -1,0 +1,30 @@
+/* ==========================================================
+   Convertly - seo.css
+   Small additions for the routed SEO pages (tool pages, legal
+   pages, footer links). The shared look lives in ../../css/ -
+   these rules only add what the routing needs, so the vanilla
+   version is untouched.
+   ========================================================== */
+
+/* Anchors that reuse button classes (cards, back pill, brand) */
+a.hg-card, a.hg-back, a.brand { text-decoration: none; color: inherit; }
+
+/* Sections stacked under a tool panel (how-to, FAQ, related) */
+.tp-sec { margin-top: 26px; }
+.tp-sec h2 { font-size: 1.35rem; font-weight: 800; margin-bottom: 14px; }
+.tp-sec h3 { font-size: 1.02rem; font-weight: 700; margin: 16px 0 4px; }
+.tp-sec h3:first-of-type { margin-top: 0; }
+.tp-sec p { margin: 0 0 8px; color: var(--muted); line-height: 1.65; }
+.tp-steps { margin: 0; padding-left: 20px; color: var(--muted); line-height: 1.7; }
+.tp-steps li + li { margin-top: 6px; }
+
+/* Static pages (About / Privacy / Contact / Terms) */
+.tp-page p { margin: 0 0 12px; color: var(--muted); line-height: 1.7; }
+.tp-page h2 { font-size: 1.2rem; font-weight: 800; margin: 22px 0 8px; }
+.tp-page ul { margin: 8px 0 12px; padding-left: 20px; color: var(--muted); line-height: 1.7; }
+.tp-page a { color: var(--cobalt); }
+
+/* Footer navigation */
+.foot-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; margin-top: 10px; }
+.foot-links a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.foot-links a:hover { color: var(--ink); }
