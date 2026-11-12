@@ -13,6 +13,7 @@
    Chromium download. Skips with a warning if Chrome is
    missing (set CHROME_PATH to point at another browser).
    ========================================================== */
+import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -24,16 +25,38 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = path.join(ROOT, 'dist');
 const PORT = 4173;
 
-/* Chrome locations to try (Windows first - that is where this runs). */
+/* Chrome locations to try: env overrides first, then OS defaults.
+   The Linux paths cover CI images (Vercel, GitHub Actions...) which put
+   the browser in different places than a desktop install. */
 const CHROME_CANDIDATES = [
   process.env.CHROME_PATH,
+  process.env.PUPPETEER_EXECUTABLE_PATH,
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
   'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/usr/bin/google-chrome',
+  '/usr/bin/google-chrome-stable',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+  '/snap/bin/chromium',
 ].filter(Boolean);
 
-const chromePath = CHROME_CANDIDATES.find((p) => existsSync(p));
+let chromePath = CHROME_CANDIDATES.find((p) => existsSync(p));
+
+/* Last resort: ask the shell where the browser is. */
+if (!chromePath && process.platform !== 'win32') {
+  try {
+    const probe = spawnSync(
+      'sh',
+      ['-c', 'command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser'],
+      { encoding: 'utf8' }
+    );
+    const found = (probe.stdout || '').trim().split('\n')[0];
+    if (found && existsSync(found)) chromePath = found;
+  } catch {
+    /* fall through to the skip below */
+  }
+}
 if (!chromePath) {
   console.warn('[prerender] Chrome not found - skipping pre-render (set CHROME_PATH to enable it).');
   process.exit(0);
